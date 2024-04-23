@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 WIDTH = 960
 HEIGHT = 540
@@ -21,10 +22,32 @@ clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group() 
 
+#import images from folder
+image_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images")
+title_path = os.path.join(image_folder, "title.png")
+
+#main menu design
+class DrawMenu():
+    def __init__(self,x, y, image,scale):
+        self.image=image
+        self.rect = self.image.get_rect()
+        self.rect.topleft=(x,y)
+        
+    def draw(self):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+title_img = pygame.image.load(title_path).convert_alpha()
+title=DrawMenu(100,200,title_img)
+
+def main_menu():
+    screen.fill((169, 29, 29))
+
+    title.draw()
+
 # Game loop
 running = True 
 while running: 
     clock.tick(FPS)
+    main_menu()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -34,7 +57,7 @@ while running:
 
 
     # Draw / render - draw the sprite onto the screen
-    screen.fill(BLACK) 
+    #screen.fill(BLACK) 
     all_sprites.draw(screen)
 
     pygame.display.flip() 
