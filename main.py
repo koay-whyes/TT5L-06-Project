@@ -1,5 +1,7 @@
 import pygame
 import random
+import os
+import menubutton
 
 WIDTH = 960
 HEIGHT = 540
@@ -21,10 +23,27 @@ clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group() 
 
+#import images from folder
+image_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images")
+title_path = os.path.join(image_folder, "title.png")
+play_path = os.path.join(image_folder,"play_button.png")
+
+
+def main_menu():
+    screen.fill((169, 29, 29))
+    title_img = pygame.image.load(title_path).convert_alpha()
+    title=menubutton.DrawMenu(100,200,title_img,5)
+    play_img = pygame.image.load(play_path).convert_alpha()
+    play=menubutton.DrawMenu(334,180,play_img,5)
+    title.draw(screen)
+    if play.draw(screen):
+        print('START')
+
 # Game loop
 running = True 
 while running: 
     clock.tick(FPS)
+    main_menu()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -34,9 +53,10 @@ while running:
 
 
     # Draw / render - draw the sprite onto the screen
-    screen.fill(BLACK) 
+    #screen.fill(BLACK) 
     all_sprites.draw(screen)
 
-    pygame.display.flip() 
+    pygame.display.flip()
+    pygame.display.update() 
 
 pygame.quit()
