@@ -1,7 +1,7 @@
 import pygame
 import sys
 
-SCREEN_SIZE = (700,500)
+SCREEN_SIZE = (960,540)
 BANANA = (252,244,163)
 WOOD_BROWN = (193, 154, 107)
 
@@ -18,9 +18,9 @@ class Environment:
 
     def Platform(self):
         self.platforms = [
-            pygame.Rect(0,400,700,100),
-            pygame.Rect(50,250,200,50),
-            pygame.Rect(200,100,400,50)
+            pygame.Rect(0,440,960,100),
+            pygame.Rect(100,300,200,50),
+            pygame.Rect(300,150,500,70)
         ]
         for self.platform in self.platforms:
             pygame.draw.rect(self.screen, WOOD_BROWN, self.platform)
@@ -42,6 +42,7 @@ class Environment:
 
             self.draw_environment()
             # fps
-            self.clock.tick(60)
+            self.clock.tick(30)
 
 Environment().run()
+      
