@@ -18,7 +18,7 @@ class DrawMenu():
             if pygame.mouse.get_pressed()[0]==1 and self.clicked==False:
                 self.clicked=True
                 action = True
-                print('CLICKED')
+
         if pygame.mouse.get_pressed()[0] == 0:
             self.clicked= False
         surface.blit(self.image, (self.rect.x, self.rect.y))
