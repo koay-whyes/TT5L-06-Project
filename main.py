@@ -62,7 +62,7 @@ class Game: # what this object do
 
     def draw(self):
         # Game Loop - draw
-        self.screen.fill(BLACK) # can straight away put the colour code here
+        self.screen.fill(BANANA) # can straight away put the colour code here
         self.all_sprites.draw(self.screen)
         # *after* drawing everything, flip the display (time efficiency). CANNOT flip -> display
         pg.display.flip() 

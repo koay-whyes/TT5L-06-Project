@@ -48,7 +48,7 @@ class Platform(pg.sprite.Sprite):
     def __init__(self, x, y, w, h): # x,y where to locate sprite when respawn, # w, h for size of platform
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface((w,h))
-        self.image.fill(GREEN)
+        self.image.fill(WOOD_BROWN)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
