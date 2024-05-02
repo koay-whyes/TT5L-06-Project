@@ -4,11 +4,13 @@ import os
 pygame.init()
 
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
+"""SCREEN_WIDTH = 800
+SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)"""
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 500
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Shooter')
+pygame.display.set_caption('Peppy the Pizza') # changed name
 
 # set framerate
 clock = pygame.time.Clock()
@@ -23,6 +25,13 @@ moving_left = False
 moving_right = False 
 shoot = False 
 
+tile_size = 50
+tile_size_2 = 40
+tile_size_3 = 70
+
+# load image
+background_img = pygame.image.load("img/background.jpg")
+
 # load images
 # Pepperoni (bullet)
 # !!update image
@@ -34,9 +43,9 @@ BG = (252,244,163)
 WOOD_BROWN = (193, 154, 107) 
 
 
-def draw_bg():
+""""def draw_bg():
     screen.fill(BG)
-    pygame.draw.line(screen, WOOD_BROWN,(0,300), (SCREEN_WIDTH, 300) )# start and end coordinate
+    pygame.draw.line(screen, WOOD_BROWN,(0,300), (SCREEN_WIDTH, 300) )# start and end coordinate"""
 
 # create as sprite class
 class Character(pygame.sprite.Sprite):
@@ -114,7 +123,7 @@ class Character(pygame.sprite.Sprite):
 
         # jump 
         if self.jump == True and self.in_air == False:
-            self.vel_y =-11
+            self.vel_y =-17
             self.jump = False
             self.in_air = True 
         
@@ -125,8 +134,8 @@ class Character(pygame.sprite.Sprite):
         dy += self.vel_y
 
         # check collision with floor
-        if self.rect.bottom + dy >300:
-            dy = 300 - self.rect.bottom
+        if self.rect.bottom + dy > SCREEN_HEIGHT - tile_size:
+            dy = SCREEN_HEIGHT - (tile_size + self.rect.bottom)
             self.in_air = False 
 
         # update rectangle position
@@ -156,6 +165,53 @@ class Pepperoni(pygame.sprite.Sprite):
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()
 
+class Environment():
+    def __init__(self, data):
+        self.tile_list = []
+        # load image
+        block_img = pygame.image.load('img/block.png')
+        # cuttingboard_image = pygame.image.load('')
+
+        row_count = 0
+        for row in data:
+            col_count = 0  
+            for block in row:
+                if block == 1:
+                    img = pygame.transform.scale(block_img, (tile_size, tile_size))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size
+                    img_rect.y = row_count * tile_size
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                if block == 2:
+                    img = pygame.transform.scale(block_img, (tile_size_2, tile_size_2))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size_2
+                    img_rect.y = row_count * tile_size_2
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                col_count += 1
+            row_count += 1
+
+    def draw(self):
+        for tile in self.tile_list:
+            screen.blit(tile[0], tile[1])
+
+environment_data =[
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+[0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
+]
+
+environment = Environment(environment_data)
+
 
 
 # create sprite groups
@@ -166,15 +222,16 @@ pepperoni_group = pygame.sprite.Group()
 
 # create an player instance of the class for player
 player = Character("Peppy",200,200,3, 5)
-enemy = Character("Peppy",400,200,3, 5) # change char type later
+enemy = Character("Peppy",430,150,3, 5) # change char type later
 
 
 run = True
 while run:
 
     clock.tick(FPS)
-    
-    draw_bg()
+    screen.blit(background_img, (0,0))
+    environment.draw()
+    # draw_bg()
     
     player.update_animation()
     player.draw()
