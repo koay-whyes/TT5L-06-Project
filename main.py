@@ -4,8 +4,8 @@ import PeppyMovement as PM
 
 pygame.init() 
 
-WIDTH = 960
-HEIGHT = 540
+WIDTH = 1000
+HEIGHT = 500
  
 # define colors *might split into another file afterwards
 WHITE = (255, 255, 255)
@@ -58,6 +58,7 @@ background_img = pygame.image.load("images/background.jpg")
 #create button
 title=menubutton.DrawMenu(100,200,title_img,5)
 play=menubutton.DrawMenu(334,180,play_img,5)
+playinsettings=menubutton.DrawMenu(334,180,play_img,5)
 option=menubutton.DrawMenu(334,280,option_img,5)
 exit=menubutton.DrawMenu(334,380,exit_img,5)
 sound_button=menubutton.DrawMenu(100,200,soundon_img,5)
@@ -99,30 +100,32 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         # keyboard presses (KEYDOWN)
-        if event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
                 moving_left = True
-            if event.key == pygame.K_d:
+            elif event.key == pygame.K_d:
                 moving_right = True
-            if event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE:
                 shoot = True
-            if event.key == pygame.K_w and player.alive:
+            elif event.key == pygame.K_w and player.alive:
                 player.jump = True
-            if event.key == pygame.K_ESCAPE:
-                run = False 
+            elif event.key == pygame.K_ESCAPE:
+                running = False 
 
         # keyboard button released (KEYUP)
-        if event.type == pygame.KEYUP: 
+        elif event.type == pygame.KEYUP: 
             if event.key == pygame.K_a :
                 moving_left = False 
-            if event.key == pygame.K_d:
+            elif event.key == pygame.K_d:
                 moving_right = False 
-            if event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE:
                 shoot = False 
+
     #Main Menu
     if main_menu:
         screen.fill((169, 29, 29))
         title.draw(screen)
+
         if exit.draw(screen):
             running=False
         if play.draw(screen):
@@ -130,13 +133,12 @@ while running:
 
         if option.draw(screen):
             settings=True
-            main_menu=False
             
-                    
-    elif settings==True and main_menu==False:
+    elif settings==True:
         screen.fill(BLACK)
         if back.draw(screen):
             main_menu=True
+            settings=False
         if sound_button.draw(screen):
             sound_on=not sound_on
             if sound_on:
@@ -145,8 +147,7 @@ while running:
             else:
                 sound_button.update_image(soundoff_img,5)
                 pygame.mixer.music.pause()
-    elif settings==False and main_menu==False:
-        if play.draw(screen):
+    else:
             screen.blit(background_img, (0,0))
             environment.draw()
             player.update_animation()
@@ -161,7 +162,6 @@ while running:
                 if shoot:
                     pepperoni = PM.Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
                     pepperoni_group.add(pepperoni)
-
 
                 if player.in_air:
                     player.update_action(2) # 2: jump

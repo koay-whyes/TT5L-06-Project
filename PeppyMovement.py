@@ -196,30 +196,3 @@ class Environment():
     def draw(self):
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
-
-environment_data =[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
-[0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
-]
-
-environment = Environment(environment_data)
-
-
-
-# create sprite groups
-pepperoni_group = pygame.sprite.Group()
-
-
-
-
-# create an player instance of the class for player
-player = Character("Peppy",200,200,3, 5)
-enemy = Character("Peppy",430,150,3, 5) # change char type later
