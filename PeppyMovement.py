@@ -30,7 +30,7 @@ tile_size_2 = 40
 tile_size_3 = 70
 
 # load image
-background_img = pygame.image.load("img/background.jpg")
+background_img = pygame.image.load("images/background.jpg")
 
 # load images
 # Pepperoni (bullet)
@@ -71,9 +71,9 @@ class Character(pygame.sprite.Sprite):
             # reset temporary list of images
             temp_list = []
             # count number of files in the folder
-            num_of_frames = len(os.listdir(f"img/{self.char_type}/{self.char_type}_{animation}_Frames"))
+            num_of_frames = len(os.listdir(f"images/{self.char_type}/{self.char_type}_{animation}_Frames"))
             for i in range(num_of_frames):
-                img = pygame.image.load(f"img/{self.char_type}/{self.char_type}_{animation}_Frames/{self.char_type}_{animation}_Frame{i}.png").convert_alpha() # add file directory of the pic
+                img = pygame.image.load(f"images/{self.char_type}/{self.char_type}_{animation}_Frames/{self.char_type}_{animation}_Frame{i}.png").convert_alpha() # add file directory of the pic
                 img = pygame.transform.scale(img, (int(img.get_width()*scale), int(img.get_height()*scale)))
                 temp_list.append(img)
             self.animation_list.append(temp_list)    
@@ -169,7 +169,7 @@ class Environment():
     def __init__(self, data):
         self.tile_list = []
         # load image
-        block_img = pygame.image.load('img/block.png')
+        block_img = pygame.image.load('images/block.png')
         # cuttingboard_image = pygame.image.load('')
 
         row_count = 0
@@ -223,73 +223,3 @@ pepperoni_group = pygame.sprite.Group()
 # create an player instance of the class for player
 player = Character("Peppy",200,200,3, 5)
 enemy = Character("Peppy",430,150,3, 5) # change char type later
-
-
-run = True
-while run:
-
-    clock.tick(FPS)
-    screen.blit(background_img, (0,0))
-    environment.draw()
-    # draw_bg()
-    
-    player.update_animation()
-    player.draw()
-    enemy.draw()
-
-    # update and draw groups
-    pepperoni_group.update()
-    pepperoni_group.draw(screen)
-
-
-    # update player actions
-    if player.alive:
-        # shoot pepperoni
-        if shoot:
-            pepperoni = Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
-            pepperoni_group.add(pepperoni)
-
-
-        if player.in_air:
-            player.update_action(2) # 2: jump
-        elif moving_left or moving_right:
-            player.update_action(1) # 1: run/roll
-        else:
-            player.update_action(0) # index 0: idle
-        player.move(moving_left, moving_right)
-        # not calling enemy.move()
-
-
-    # event in pygame: click/press on keyboard
-    for event in pygame.event.get():
-        # quit game
-        if event.type == pygame.QUIT:
-            run = False
-        # keyboard presses (KEYDOWN)
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                moving_left = True
-            if event.key == pygame.K_d:
-                moving_right = True
-            if event.key == pygame.K_SPACE:
-                shoot = True
-            if event.key == pygame.K_w and player.alive:
-                player.jump = True
-            if event.key == pygame.K_ESCAPE:
-                run = False 
-
-
-
-        # keyboard button released (KEYUP)
-        if event.type == pygame.KEYUP: 
-            if event.key == pygame.K_a :
-                moving_left = False 
-            if event.key == pygame.K_d:
-                moving_right = False 
-            if event.key == pygame.K_SPACE:
-                shoot = False 
-            
-
-    pygame.display.update()
-
-pygame.quit()
