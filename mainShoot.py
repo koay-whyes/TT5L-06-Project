@@ -39,13 +39,9 @@ background_img = pygame.image.load("img/background.jpg")
 
 
 # define colours
-BG = (252,244,163)
-WOOD_BROWN = (193, 154, 107) 
+"""BG = (252,244,163)
+WOOD_BROWN = (193, 154, 107) """
 
-
-""""def draw_bg():
-    screen.fill(BG)
-    pygame.draw.line(screen, WOOD_BROWN,(0,300), (SCREEN_WIDTH, 300) )# start and end coordinate"""
 
 # create as sprite class
 class Character(pygame.sprite.Sprite):
