@@ -46,11 +46,16 @@ WOOD_BROWN = (193, 154, 107) """
 # create as sprite class
 class Character(pygame.sprite.Sprite):
     # methods
-    def __init__(self, char_type, x, y, scale, speed):
+    def __init__(self, char_type, x, y, scale, speed, ammo):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True 
         self.char_type = char_type
         self.speed = speed 
+        self.ammo = ammo
+        self.start_ammo = ammo
+        self.shoot_cooldown = 0
+        self.health = 100 # self.health = health for diff health for peppy and enemy
+        self.max_health = self.health # for health bar
         self.direction = 1
         self.flip = False
         self.vel_y = 0
@@ -62,7 +67,7 @@ class Character(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks()
         
         # load all images for the players
-        animation_types = ['Idle', 'Roll', 'Jump']
+        animation_types = ['Idle', 'Roll', 'Jump','Dead']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -90,7 +95,10 @@ class Character(pygame.sprite.Sprite):
 
         # if the animation has run out then reset back to the start
         if self.frame_index >= len(self.animation_list[self.action]):
-            self.frame_index = 0 
+            if self.action == 3:
+                self.frame_index = len(self.animation_list[self.action]) -1
+            else:
+                self.frame_index = 0 
 
     def update_action(self, new_action):
         # check if the new action is different from the previous one
@@ -100,7 +108,12 @@ class Character(pygame.sprite.Sprite):
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
 
-
+    def update(self):
+        self.update_animation()
+        self.check_alive()
+        # update cooldown
+        if self.shoot_cooldown > 0:
+            self.shoot_cooldown -= 1
 
     def move(self, moving_left, moving_right):
         # reset movement variables
@@ -138,6 +151,20 @@ class Character(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
     
+    def shoot(self):
+        if self.shoot_cooldown == 0 and self.ammo > 0:
+            self.shoot_cooldown = 20 # reload speed of bullet
+            pepperoni = Pepperoni(self.rect.centerx + (0.6 * self.rect.size[0]*self.direction), self.rect.centery, self.direction)
+            pepperoni_group.add(pepperoni)
+            # reduce ammo
+            self.ammo -= 1
+
+    def check_alive(self):
+        if self.health <= 0 :
+            self.health = 0
+            self.speed = 0
+            self.alive = False
+            self.update_action(3) #dead animation
 
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
@@ -160,6 +187,17 @@ class Pepperoni(pygame.sprite.Sprite):
         # check if pepperoni has gone off screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()
+
+        # check collision with characters
+        if pygame.sprite.spritecollide(player, pepperoni_group, False):
+            if player.alive:
+                player.health -= 5
+                self.kill() # delete bullet 
+
+        if pygame.sprite.spritecollide(enemy, pepperoni_group, False):
+            if enemy.alive:
+                enemy.health -= 25
+                self.kill() # delete bullet
 
 class Environment():
     def __init__(self, data):
@@ -217,8 +255,8 @@ pepperoni_group = pygame.sprite.Group()
 
 
 # create an player instance of the class for player
-player = Character("Peppy",200,200,3, 5)
-enemy = Character("Peppy",430,150,3, 5) # change char type later
+player = Character("Peppy",200,200,3, 5, 5)
+enemy = Character("Peppy",430,400,3, 5, 20) # change char type later
 
 
 run = True
@@ -229,8 +267,10 @@ while run:
     environment.draw()
     # draw_bg()
     
-    player.update_animation()
+    player.update() # change to update to handle all updates together
     player.draw()
+
+    enemy.update
     enemy.draw()
 
     # update and draw groups
@@ -242,8 +282,7 @@ while run:
     if player.alive:
         # shoot pepperoni
         if shoot:
-            pepperoni = Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
-            pepperoni_group.add(pepperoni)
+            player.shoot()
 
 
         if player.in_air:
