@@ -212,6 +212,7 @@ while running:
                     main_menu=True
                     pause_menu=False
                     settings=False
+                    reset_level()
 
             # update and draw groups
             pepperoni_group.update()
