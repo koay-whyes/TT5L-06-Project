@@ -1,48 +1,114 @@
 import pygame
-import sys
+from pygame.locals import *
 
-SCREEN_SIZE = (960,540)
-BANANA = (252,244,163)
-WOOD_BROWN = (193, 154, 107)
+SCREEN_SIZE = (1000,500)
 
-class Environment:
-    def __init__(self):
-        pygame.init()
+pygame.init()
 
-        # creates window, sets resolution
-        pygame.display.set_caption("Peppy the Pizza")
-        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+# creates window
+pygame.display.set_caption("Peppy the Pizza")
+screen = pygame.display.set_mode(SCREEN_SIZE)
 
-        # frame rate
-        self.clock = pygame.time.Clock()
+tile_size = 50
+tile_size_2 = 25
+tile_size_3 = 100
 
-    def Platform(self):
-        self.platforms = [
-            pygame.Rect(0,440,960,100),
-            pygame.Rect(100,300,200,50),
-            pygame.Rect(300,150,500,70)
-        ]
-        for self.platform in self.platforms:
-            pygame.draw.rect(self.screen, WOOD_BROWN, self.platform)
+# load image
+background_img = pygame.image.load("random/background.jpg")
 
-    def draw_environment(self):
-        self.screen.fill(BANANA)
-        self.Platform()
-        pygame.display.update()
-      
+class Environment():
+    def __init__(self, data):
+        self.tile_list = []
+        # load image
+        block_img = pygame.image.load('random/block.png')
+        # cuttingboard_image = pygame.image.load('')
 
-    def run(self):
-        # creates game loop
-        while True:
-            # gets user input
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+        row_count = 0
+        for row in data:
+            col_count = 0  
+            for block in row:
+                if block == 1:
+                    img = pygame.transform.scale(block_img, (tile_size, tile_size))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size
+                    img_rect.y = row_count * tile_size
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                if block == 2:
+                    img = pygame.transform.scale(block_img, (tile_size_2, tile_size_2))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size_2
+                    img_rect.y = row_count * tile_size_2
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                col_count += 1
+            row_count += 1
 
-            self.draw_environment()
-            # fps
-            self.clock.tick(30)
+    def draw(self):
+        for tile in self.tile_list:
+            screen.blit(tile[0], tile[1])
 
-Environment().run()
+environment_data =[
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
+]
+
+environment_data_2 =[
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+]
+
+environment_data_3 = [
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+]
+
+environment = Environment(environment_data)
+environment_2 = Environment(environment_data_2)
+
+# creates game loop
+run = True
+while run:
+    screen.blit(background_img, (0,0))
+
+    environment.draw()
+    environment_2.draw()
+
+    # gets user input
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    pygame.display.update()
+
+pygame.quit()
       
