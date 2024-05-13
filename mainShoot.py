@@ -67,7 +67,7 @@ class Character(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks()
         
         # load all images for the players
-        animation_types = ['Idle', 'Roll', 'Jump','Dead']
+        animation_types = ['Idle', 'Roll', 'Jump', 'Dead']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -270,7 +270,7 @@ while run:
     player.update() # change to update to handle all updates together
     player.draw()
 
-    enemy.update
+    enemy.update()
     enemy.draw()
 
     # update and draw groups
