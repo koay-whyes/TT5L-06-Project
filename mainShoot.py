@@ -47,7 +47,7 @@ class Character(pygame.sprite.Sprite):
         self.char_type = char_type
         self.speed = speed 
         self.ammo = ammo
-        self.shoot_cooldown = ammo
+        self.start_ammo = ammo
         self.shoot_cooldown = 0
         self.health = 100 # self.health = health for diff health for peppy and enemy
         self.max_health = self.health # for health bar
