@@ -47,9 +47,10 @@ pygame.mixer.music.set_volume(0.3)
 
 #Main Menu images
 title_img = pygame.image.load("images/title.png").convert_alpha()
-option_img = pygame.image.load("images/option_button.png").convert_alpha()
+settings_img = pygame.image.load("images/settings_button.png").convert_alpha()
 play_img = pygame.image.load("images/play_button.png").convert_alpha()
 exit_img=pygame.image.load("images/exit_button.png").convert_alpha()
+menu_background_img=pygame.image.load("images/menu_background.png")
 
 #Settings Images
 soundon_img = pygame.image.load("images/soundon_button.png").convert_alpha()
@@ -61,30 +62,40 @@ sfx_text_img = pygame.image.load("images/sfx_text.png").convert_alpha()
 music_img = pygame.image.load("images/music_text.png").convert_alpha()
 
 #Game Images
+comic_panel  = pygame.image.load("images/comic_panel.jpeg")
 background_img = pygame.image.load("images/background.jpg")
 
 
 #Pause Menu
 pause_img = pygame.image.load("images/pause_button.png").convert_alpha()
-retry_img = pygame.image.load("images/retry_button.png").convert_alpha()
-menu_img = pygame.image.load("images/mainmenu_button.png").convert_alpha()
-
+restart_img = pygame.image.load("images/restart_button.png").convert_alpha()
+menu_img = pygame.image.load("images/menu_button.png").convert_alpha()
+resume_img = pygame.image.load("images/resume_button.png").convert_alpha()
+warning_img = pygame.image.load("images/warning.png").convert_alpha()
+warning_scaled_img=pygame.transform.scale(warning_img,(320,320))
+tick_img = pygame.image.load("images/tick_button.png").convert_alpha()
+x_img = pygame.image.load("images/x_button.png").convert_alpha()
+next_img = pygame.image.load("images/next_button.png").convert_alpha()
 
 #text
-title=menubutton.DrawMenu(100,200,title_img,5)
+title=menubutton.DrawMenu(320,0,title_img,6)
 sfx_text=menubutton.DrawMenu(50,100,sfx_text_img,5)
 music_text=menubutton.DrawMenu(50,250,music_img,5)
 
 #create button
-play=menubutton.DrawMenu(440,80,play_img,4.5)
-option=menubutton.DrawMenu(440,250,option_img,4.5)
-exit=menubutton.DrawMenu(440,380,exit_img,4.5)
+play_button=menubutton.DrawMenu(440,200,play_img,2.5)
+settings_button=menubutton.DrawMenu(440,280,settings_img,2.5)
+exit_button=menubutton.DrawMenu(440,360,exit_img,2.5)
 sound_button=menubutton.DrawMenu(350,260,soundon_img,3)
-back=menubutton.DrawMenu(600,280,back_img,4.5)
+back_button=menubutton.DrawMenu(600,280,back_img,2.5)
 sfx_button=menubutton.DrawMenu(350,100,sfx_img,4.5)
-pause=menubutton.DrawMenu(940,0,pause_img,2)
-retry=menubutton.DrawMenu(440,100,retry_img,4.5)
-menu_button=menubutton.DrawMenu(100,100,menu_img,4.5)
+pause_button=menubutton.DrawMenu(940,0,pause_img,2)
+restart_button=menubutton.DrawMenu(440,100,restart_img,2.5)
+menu_button=menubutton.DrawMenu(100,100,menu_img,2.5)
+resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
+tick_button=menubutton.DrawMenu(340,290,tick_img,5)
+x_button=menubutton.DrawMenu(570,290,x_img,5)
+next_button=menubutton.DrawMenu(850,150,next_img,1.5)
 
 environment_data =[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -119,7 +130,8 @@ main_menu=True
 sound_on=True
 sfx=True
 pause_menu=False
-gameplay=False
+warning=False
+story=False
 # Game loop
 running = True 
 while running: 
@@ -152,24 +164,24 @@ while running:
 
     #Main Menu
     if main_menu:
-        screen.fill((169, 29, 29))
+        screen.blit(menu_background_img, (0,0))
         title.draw(screen)
 
-        if exit.draw(screen):
+        if exit_button.draw(screen):
             running=False
-        if play.draw(screen):
-            main_menu=False
-            gameplay=True
-        if option.draw(screen):
+        if settings_button.draw(screen):
             main_menu=False
             settings=True
+            story=False
+        if play_button.draw(screen):
+            story=True
+            main_menu=False
             
-    elif settings==True:
+    elif settings:
         screen.fill((255, 224, 142))
         sfx_text.draw(screen)
         music_text.draw(screen)
-        back=menubutton.DrawMenu(600,280,back_img,4.5)
-        if back.draw(screen):
+        if back_button.draw(screen):
             main_menu=True
             settings=False
         if sound_button.draw(screen):
@@ -188,7 +200,19 @@ while running:
                 else:
                     sfx_button.update_image(NoSfx_img,4.5)
                     pygame.mixer.Channel(0).set_volume(0)
-
+    elif story:
+        screen.fill(BLACK)
+        screen.blit(comic_panel,(350,0))
+        pygame.mixer.music.pause()
+        pygame.mixer.music.load('sad_bgm.mp3')
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(1)
+        if next_button.draw(screen):
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load("bg_music.mp3")
+            pygame.mixer.music.play(-1,0.0)
+            pygame.mixer.music.set_volume(0.3)
+            story=False
     else:
             screen.blit(background_img, (0,0))
             environment.draw()
@@ -196,23 +220,30 @@ while running:
             player.draw()
             enemy.draw()
             #Pause Menu
-            if pause.draw(screen):
+            if pause_button.draw(screen):
                 pause_menu = True
-                back=menubutton.DrawMenu(780,100,back_img,4.5)
             if pause_menu==True:
                 screen.fill(WOOD_BROWN)
                 #Continue
-                if back.draw(screen):
+                if resume_button.draw(screen):
                     pause_menu=False
                 #Restart Level
-                if retry.draw(screen):
+                if restart_button.draw(screen):
                     pause_menu=False
                     reset_level()
                 if menu_button.draw(screen):
-                    main_menu=True
-                    pause_menu=False
-                    settings=False
-                    reset_level()
+                    warning=True
+                if warning == True: 
+                    screen.blit(warning_scaled_img, (370,90))
+                    if tick_button.draw(screen):
+                        main_menu=True
+                        pause_menu=False
+                        settings=False
+                        warning=False
+                        reset_level()
+                    elif x_button.draw(screen):
+                        pause_menu=True
+                        warning=False
 
             # update and draw groups
             pepperoni_group.update()
