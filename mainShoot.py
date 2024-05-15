@@ -55,6 +55,18 @@ def draw_bg():
     screen.fill(BG)
     pygame.draw.line(screen, WOOD_BROWN,(0,300), (SCREEN_WIDTH, 300) )# start and end coordinate
 
+# fixed the bullet-character gap problem
+def custom_collision(character, pepperoni_group):
+    # Calculate the centers
+    pepperoni_center = pepperoni_group.rect.center
+    character_center = character.rect.center
+        
+    # Define a distance threshold, e.g., 10 pixels towards the center
+    distance_threshold = 10
+        
+    # Check if the bullet is within the threshold distance to the character's center
+    return pygame.math.Vector2(pepperoni_center).distance_to(character_center) <= distance_threshold
+
 # create as sprite class
 class Character(pygame.sprite.Sprite):
     # methods
@@ -189,7 +201,7 @@ class Character(pygame.sprite.Sprite):
 				#stop running and face the player
                 self.update_action(0)#0: idle
 				#shoot
-                #self.shoot()
+                self.shoot()
             else:
                 if self.idling == False:
                     if self.direction == 1:
@@ -240,8 +252,6 @@ class ItemBox(pygame.sprite.Sprite):
 					player.health = player.max_health
 			elif self.item_type == 'Ammo':
 				player.ammo += 15
-			elif self.item_type == 'Grenade':
-				player.grenades += 3
 			#delete the item box
 			self.kill()
 
@@ -267,13 +277,15 @@ class Pepperoni(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         # define instances
         self.speed = 10 # every bullet have the same speed
-        # self.image = pepperoni_img
-        self.image = pygame.Surface((12,12))
-        self.image.fill((255,0,0))
+        self.image = pepperoni_img
+        # self.image = pygame.Surface((12,12))
+        # self.image.fill((255,0,0))
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
         self.direction = direction
 
+
+    
     def update(self):
         # move pepperoni
         self.rect.x += (self.direction * self.speed)
@@ -282,14 +294,17 @@ class Pepperoni(pygame.sprite.Sprite):
             self.kill()
 
         # check collision with characters
-        if pygame.sprite.spritecollide(player, pepperoni_group, False):
+        if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
                 player.health -= 5
                 self.kill() # delete bullet 
 
+        
+        
         for enemy in enemy_group:
-            if pygame.sprite.spritecollide(enemy, pepperoni_group, False):
+            if pygame.sprite.spritecollide(enemy, pepperoni_group, False, custom_collision):
                 if enemy.alive:
+                    
                     enemy.health -= 25
                     self.kill() # delete bullet 
 
