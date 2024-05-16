@@ -327,10 +327,10 @@ item_box_group.add(item_box)
 
 
 # create an player instance of the class for player
-player = Character("Peppy",200,200,1.65, 5, 20)
+player = Character("Peppy",200,200,3, 5, 20)
 health_bar = HealthBar(10, 10, player.health, player.health)
-enemy = Character("Pineapple",500, 200, 1.65, 2, 20) # change char type later
-enemy2 = Character('Pineapple', 300, 200, 1.65, 2, 20)		
+enemy = Character("Pineapple",500, 200, 3, 2, 20) # change char type later
+enemy2 = Character('Pineapple', 300, 200, 3, 2, 20)		
 enemy_group.add(enemy)		
 enemy_group.add(enemy2)
 
