@@ -5,7 +5,7 @@ import csv
 WIDTH = 1000
 HEIGHT = 500
 ROWS = 20
-COLS = 125
+COLS = 200
 TILE_SIZE = HEIGHT // ROWS
 
 class Environment():

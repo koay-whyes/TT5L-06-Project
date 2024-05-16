@@ -31,7 +31,7 @@ FPS = 60
 GRAVITY = 0.75
 # environment variables
 ROWS = 20
-COLS = 125
+COLS = 200
 TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 16
 level = 1
