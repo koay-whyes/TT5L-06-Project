@@ -38,11 +38,10 @@ tile_size_2 = 40
 tile_size_3 = 70
 
 #Load and play bg music
-pygame.mixer.music.load("bg_music.mp3")
+pygame.mixer.music.load("bgm.mp3")
 #Repeats,when to start playing
 pygame.mixer.music.play(-1,0.0)
 pygame.mixer.music.set_volume(0.3)
-
 #all_sprites = pygame.sprite.Group() 
 
 #Main Menu images
@@ -176,6 +175,10 @@ while running:
         if play_button.draw(screen):
             story=True
             main_menu=False
+            pygame.mixer.music.load('sad_bgm.mp3')
+            pygame.mixer.music.play(-1,0.0)
+            pygame.mixer.music.set_volume(1)
+        
             
     elif settings:
         screen.fill((255, 224, 142))
@@ -203,16 +206,12 @@ while running:
     elif story:
         screen.fill(BLACK)
         screen.blit(comic_panel,(350,0))
-        pygame.mixer.music.pause()
-        pygame.mixer.music.load('sad_bgm.mp3')
-        pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(1)
+        print("Loading sad_bgm.mp3")
         if next_button.draw(screen):
-            pygame.mixer.music.stop()
-            pygame.mixer.music.load("bg_music.mp3")
+            story=False
+            pygame.mixer.music.load("bgm.mp3")
             pygame.mixer.music.play(-1,0.0)
             pygame.mixer.music.set_volume(0.3)
-            story=False
     else:
             screen.blit(background_img, (0,0))
             environment.draw()
