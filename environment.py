@@ -1,114 +1,45 @@
 import pygame
 from pygame.locals import *
+import csv
 
-SCREEN_SIZE = (1000,500)
-
-pygame.init()
-
-# creates window
-pygame.display.set_caption("Peppy the Pizza")
-screen = pygame.display.set_mode(SCREEN_SIZE)
-
-tile_size = 50
-tile_size_2 = 25
-tile_size_3 = 100
-
-# load image
-background_img = pygame.image.load("random/background.jpg")
+WIDTH = 1000
+HEIGHT = 500
+ROWS = 20
+COLS = 125
+TILE_SIZE = HEIGHT // ROWS
 
 class Environment():
-    def __init__(self, data):
-        self.tile_list = []
-        # load image
-        block_img = pygame.image.load('random/block.png')
-        # cuttingboard_image = pygame.image.load('')
+    def __init__(self, img_list):
+        # tiles with collision
+        self.collision_list = []
+        self.img_list = img_list
 
-        row_count = 0
-        for row in data:
-            col_count = 0  
-            for block in row:
-                if block == 1:
-                    img = pygame.transform.scale(block_img, (tile_size, tile_size))
+    # data is from csvfile
+    def process_data(self, data):
+        # iterate through each value in level data file
+        for y, row in enumerate(data):
+            for x, tile in enumerate(row):
+                # -1 ignored
+                if tile >= 0:
+                    # get image
+                    img = self.img_list[tile]
+                    # get rectangle
                     img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if block == 2:
-                    img = pygame.transform.scale(block_img, (tile_size_2, tile_size_2))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size_2
-                    img_rect.y = row_count * tile_size_2
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                col_count += 1
-            row_count += 1
+                    # get position
+                    img_rect.x = x * TILE_SIZE
+                    img_rect.y = y * TILE_SIZE
+                    tile_data = (img, img_rect)
+                    # tiles with collision
+                    if tile >= 0 and tile <= 13:
+                        self.collision_list.append(tile_data)
+                    # environmental threats
+                    # elif tile >= 14:
+                    #     pass
+                    # checkpoint
+                    elif tile == 14 and tile == 15:
+                        pass
 
-    def draw(self):
-        for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
-
-environment_data =[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
-]
-
-environment_data_2 =[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-]
-
-environment_data_3 = [
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-]
-
-environment = Environment(environment_data)
-environment_2 = Environment(environment_data_2)
-
-# creates game loop
-run = True
-while run:
-    screen.blit(background_img, (0,0))
-
-    environment.draw()
-    environment_2.draw()
-
-    # gets user input
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
-    pygame.display.update()
-
-pygame.quit()
-      
+    def draw(self, surface):
+        for tile in self.collision_list:
+            # img and rect
+            surface.blit(tile[0], tile[1])

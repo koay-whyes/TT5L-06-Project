@@ -21,7 +21,7 @@ pygame.display.set_caption("Level Editor")
 ROWS = 20
 COLS = 125
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 4
+TILE_TYPES = 16
 current_tile = 0
 level = 0
 
@@ -31,11 +31,15 @@ scroll = 0
 scroll_speed = 1
 
 # load images
-background_img = pygame.image.load("resources/background_2.jpg").convert_alpha()
+background_images = {
+    1: pygame.image.load("resources/Background/Level 1/level_1.png").convert_alpha(),
+    2: pygame.image.load("resources/Background/Level 2/Level 2.png").convert_alpha(),
+    3: pygame.image.load("resources/Background/Level 1/level_1.png").convert_alpha()
+}
 # store images in a list
 img_list = []
 for x in range(TILE_TYPES):
-    img = pygame.image.load(f'resources/tiles/{x}.png').convert_alpha()
+    img = pygame.image.load(f'resources/Interactive Elements/{x}.png').convert_alpha()
     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
     img_list.append(img)
 
@@ -76,9 +80,10 @@ def draw_text(text, font, text_col, x, y):
 # drawing background
 def draw_background():
     screen.fill(YELLOW)
+    background_img = background_images.get(level % len(background_images), background_images[1])
     width = background_img.get_width()
     # loop background image
-    for x in range(4):
+    for x in range(5):
         # background needs to move left while scrolling right and vice versa
         # a value times with scroll to change scrolling speed
         screen.blit(background_img, ((x * width) -scroll, 0))

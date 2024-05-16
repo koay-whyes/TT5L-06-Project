@@ -1,6 +1,8 @@
 import pygame, random, os, menubutton
 from pygame import mixer
 import PeppyMovement as PM
+import csv
+from environment import Environment
 
 pygame.init() 
 
@@ -27,15 +29,17 @@ clock = pygame.time.Clock()
 FPS = 60 
 # define game variables
 GRAVITY = 0.75
+# environment variables
+ROWS = 20
+COLS = 125
+TILE_SIZE = HEIGHT // ROWS
+TILE_TYPES = 16
+level = 1
 
 # define player action variables
 moving_left = False
 moving_right = False 
 shoot = False 
-
-tile_size = 50
-tile_size_2 = 40
-tile_size_3 = 70
 
 #Load and play bg music
 pygame.mixer.music.load("bg_music.mp3")
@@ -55,6 +59,14 @@ soundoff_img = pygame.image.load("images/soundoff_button.png").convert_alpha()
 back_img = pygame.image.load("images/back_button.png").convert_alpha()
 background_img = pygame.image.load("images/background.jpg")
 
+# load environment images
+# store tiles in a list 
+img_list = []
+for x in range(TILE_TYPES):
+    img = pygame.image.load(f'resources/Interactive Elements/{x}.png')
+    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+    img_list.append(img)
+
 #create button
 title=menubutton.DrawMenu(100,200,title_img,5)
 play=menubutton.DrawMenu(334,180,play_img,5)
@@ -64,29 +76,35 @@ exit=menubutton.DrawMenu(334,380,exit_img,5)
 sound_button=menubutton.DrawMenu(100,200,soundon_img,5)
 back=menubutton.DrawMenu(500,280,back_img,5)
 
-
-
-
-environment_data =[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
-[0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
-]
-environment = PM.Environment(environment_data)
-
 # create sprite groups
 pepperoni_group = pygame.sprite.Group()
 
 # create an player instance of the class for player
 player = PM.Character("Peppy",200,200,3, 5)
 enemy = PM.Character("Peppy",430,150,3, 5) # change char type later
+
+def draw_bg():
+    screen.fill(BG)
+
+# create empty tile list
+environment_data = []
+# -1 means empty
+for row in range(ROWS):
+    r = [-1] * COLS
+    environment_data.append(r)
+
+# load in level data and create environment
+# loading using csv
+with open(f'level{level}_data.csv', newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    # getting individual values
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            environment_data[x][y] = int(tile)
+
+# process data
+environment = Environment(img_list)
+environment.process_data(environment_data)
 
 settings=False
 main_menu=True
@@ -127,19 +145,23 @@ while running:
         title.draw(screen)
 
         if exit.draw(screen):
+            print("exit button pressed")
             running=False
-        if play.draw(screen):
+        elif play.draw(screen):
+            print("play button pressed")
             main_menu=False
-
-        if option.draw(screen):
-            settings=True
+            settings=False
+        elif option.draw(screen):
+            print("option button pressed")
+            settings=True    
+            main_menu=False
             
     elif settings==True:
         screen.fill(BLACK)
-        if back.draw(screen):
-            main_menu=True
+        if back.draw(screen): 
+            main_menu=True   
             settings=False
-        if sound_button.draw(screen):
+        elif sound_button.draw(screen):
             sound_on=not sound_on
             if sound_on:
                 sound_button.update_image(soundon_img,5)
@@ -148,8 +170,8 @@ while running:
                 sound_button.update_image(soundoff_img,5)
                 pygame.mixer.music.pause()
     else:
-            screen.blit(background_img, (0,0))
-            environment.draw()
+            draw_bg()
+            environment.draw(screen)
             player.update_animation()
             player.draw()
             enemy.draw()
