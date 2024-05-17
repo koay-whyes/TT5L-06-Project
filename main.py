@@ -119,7 +119,12 @@ enemy = PM.Character("Peppy",430,150,3, 5) # change char type later
 
 #reset level
 def reset_level():
-    global player, enemy
+    global player, enemy, settings , main_menu,pause_menu,warning,story
+    settings=False
+    main_menu=True
+    pause_menu=False
+    warning=False
+    story=False
     pepperoni_group.empty()
     player = PM.Character("Peppy",200,200,3, 5)
     enemy = PM.Character("Peppy",430,150,3, 5)
@@ -206,7 +211,6 @@ while running:
     elif story:
         screen.fill(BLACK)
         screen.blit(comic_panel,(350,0))
-        print("Loading sad_bgm.mp3")
         if next_button.draw(screen):
             story=False
             pygame.mixer.music.load("bgm.mp3")
@@ -228,17 +232,13 @@ while running:
                     pause_menu=False
                 #Restart Level
                 if restart_button.draw(screen):
-                    pause_menu=False
                     reset_level()
+                    main_menu=False
                 if menu_button.draw(screen):
                     warning=True
                 if warning == True: 
                     screen.blit(warning_scaled_img, (370,90))
                     if tick_button.draw(screen):
-                        main_menu=True
-                        pause_menu=False
-                        settings=False
-                        warning=False
                         reset_level()
                     elif x_button.draw(screen):
                         pause_menu=True
