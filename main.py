@@ -1,10 +1,10 @@
 import pygame, random, os, menubutton
 from pygame import mixer
-import PeppyMovement as PM
+import mainShoot as MS
 pygame.init() 
 
 WIDTH = 1000
-HEIGHT = 500
+HEIGHT = int(WIDTH * 0.5)
  
 # define colors *might split into another file afterwards
 WHITE = (255, 255, 255)
@@ -36,9 +36,6 @@ tile_size = 50
 tile_size_2 = 40
 tile_size_3 = 70
 
-
-#all_sprites = pygame.sprite.Group() 
-
 #Main Menu images
 title_img = pygame.image.load("images/title.png").convert_alpha()
 settings_img = pygame.image.load("images/settings_button.png").convert_alpha()
@@ -58,7 +55,14 @@ music_img = pygame.image.load("images/music_text.png").convert_alpha()
 #Game Images
 comic_panel  = pygame.image.load("images/comic_panel.jpeg")
 background_img = pygame.image.load("images/background.jpg")
-
+pepperoni_img = pygame.image.load('images/icons/pepperoni.png').convert_alpha()
+#pick up boxes
+health_box_img = pygame.image.load('images/icons/health_box.png').convert_alpha()
+ammo_box_img = pygame.image.load('images/icons/ammo_box.png').convert_alpha()
+item_boxes = {
+	'Health'	: health_box_img,
+	'Ammo'		: ammo_box_img
+}
 
 #Pause Menu
 pause_img = pygame.image.load("images/pause_button.png").convert_alpha()
@@ -103,14 +107,26 @@ environment_data =[
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
 ]
-environment = PM.Environment(environment_data)
+environment = MS.Environment(environment_data)
 
 # create sprite groups
+enemy_group = pygame.sprite.Group()
 pepperoni_group = pygame.sprite.Group()
+item_box_group = pygame.sprite.Group()
+
+#temp - create item boxes
+item_box = MS.ItemBox('Health', 100, 260)
+item_box_group.add(item_box)
+item_box = MS.ItemBox('Ammo', 400, 260)
+item_box_group.add(item_box)
 
 # create an player instance of the class for player
-player = PM.Character("Peppy",200,200,3, 5)
-enemy = PM.Character("Peppy",430,150,3, 5) # change char type later
+player = MS.Character("Peppy",200,200,3, 5, 20)
+health_bar = MS.HealthBar(10, 10, player.health, player.health)
+enemy = MS.Character("Pineapple",500, 200, 3, 2, 20) # change char type later
+enemy2 = MS.Character('Pineapple', 300, 200, 3, 2, 20)		
+enemy_group.add(enemy)		
+enemy_group.add(enemy2)
 
 #reset level
 def reset_level():
@@ -121,8 +137,8 @@ def reset_level():
     warning=False
     story=False
     pepperoni_group.empty()
-    player = PM.Character("Peppy",200,200,3, 5)
-    enemy = PM.Character("Peppy",430,150,3, 5)
+    player = MS.Character("Peppy",200,200,3, 5)
+    enemy = MS.Character("Peppy",430,150,3, 5)
 
 settings=False
 main_menu=True
@@ -222,16 +238,27 @@ while running:
             story_channel.pause()
             main_channel.unpause()
     else:
-            screen.blit(background_img, (0,0))
-            environment.draw()
-            player.update_animation()
+            MS.draw_bg()
+            #show player health
+            health_bar.draw(player.health)
+            #show ammo
+            MS.draw_text('AMMO: ', font, WHITE, 10, 35)
+            for x in range(player.ammo):
+                screen.blit(pepperoni_img, (90 + (x * 10), 40))
+                
+            player.update() 
             player.draw()
-            enemy.draw()
+
+            for enemy in enemy_group:
+                enemy.ai()
+                enemy.update()
+                enemy.draw()
+
             #Pause Menu
             if pause_button.draw(screen):
                 pause_menu = True
             if pause_menu==True:
-                screen.fill(WOOD_BROWN)
+                screen.fill(193, 154, 107)
                 #Continue
                 if resume_button.draw(screen):
                     pause_menu=False
@@ -255,7 +282,7 @@ while running:
             if player.alive:
                 # shoot pepperoni
                 if shoot:
-                    pepperoni = PM.Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
+                    pepperoni = MS.Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
                     pepperoni_group.add(pepperoni)
 
                 if player.in_air:
