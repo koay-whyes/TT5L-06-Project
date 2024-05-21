@@ -26,11 +26,15 @@ clock = pygame.time.Clock()
 FPS = 60 
 # define game variables
 GRAVITY = 0.75
-
+TILE_SIZE = 40
 # define player action variables
 moving_left = False
 moving_right = False 
 shoot = False 
+
+tile_size = 50
+tile_size_2 = 40
+tile_size_3 = 70
 
 #Main Menu images
 title_img = pygame.image.load("images/title.png").convert_alpha()

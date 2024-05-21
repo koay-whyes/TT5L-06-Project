@@ -17,6 +17,9 @@ FPS = 60
 # define game variables
 GRAVITY = 0.75
 TILE_SIZE = 40
+tile_size = 50
+tile_size_2 = 40
+tile_size_3 = 70
 
 
 # define player action variables
