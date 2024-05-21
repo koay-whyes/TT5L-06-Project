@@ -1,7 +1,6 @@
 import pygame, random, os, menubutton
 from pygame import mixer
 import PeppyMovement as PM
-
 pygame.init() 
 
 WIDTH = 1000
@@ -37,11 +36,7 @@ tile_size = 50
 tile_size_2 = 40
 tile_size_3 = 70
 
-#Load and play bg music
-pygame.mixer.music.load("bgm.mp3")
-#Repeats,when to start playing
-pygame.mixer.music.play(-1,0.0)
-pygame.mixer.music.set_volume(0.3)
+
 #all_sprites = pygame.sprite.Group() 
 
 #Main Menu images
@@ -132,6 +127,15 @@ pause_menu=False
 warning=False
 story=False
 # Game loop
+MainMusic = pygame.mixer.Sound("bgm.mp3") 
+StoryMusic = pygame.mixer.Sound("sad_bgm.mp3")
+
+main_channel = pygame.mixer.Channel(1)
+story_channel = pygame.mixer.Channel(2)
+
+main_channel.play(pygame.mixer.Sound(MainMusic), loops=-1, fade_ms=1000)
+story_channel.play(pygame.mixer.Sound(StoryMusic), loops=-1, fade_ms=1000)
+
 running = True 
 while running: 
     clock.tick(FPS)
@@ -162,10 +166,10 @@ while running:
                 shoot = False 
 
     #Main Menu
-    if main_menu:
+    if main_menu==True:
         screen.blit(menu_background_img, (0,0))
         title.draw(screen)
-
+        story_channel.pause()
         if exit_button.draw(screen):
             running=False
         if settings_button.draw(screen):
@@ -175,15 +179,16 @@ while running:
         if play_button.draw(screen):
             story=True
             main_menu=False
-            pygame.mixer.music.load('sad_bgm.mp3')
-            pygame.mixer.music.play(-1,0.0)
-            pygame.mixer.music.set_volume(1)
-        
-            
-    elif settings:
+            story_channel.unpause()
+            main_channel.pause()
+
+      
+    elif settings==True:
         screen.fill((255, 224, 142))
         sfx_text.draw(screen)
         music_text.draw(screen)
+        story_channel.pause()
+        main_channel.unpause()
         if back_button.draw(screen):
             main_menu=True
             settings=False
@@ -191,10 +196,10 @@ while running:
             sound_on=not sound_on
             if sound_on:
                 sound_button.update_image(soundon_img,3)
-                pygame.mixer.music.play(-1)
+                main_channel.play(pygame.mixer.Sound(MainMusic), loops=-1, fade_ms=0)
             else:
                 sound_button.update_image(soundoff_img,3)
-                pygame.mixer.music.pause()
+                main_channel.stop()
         if sfx_button.draw(screen):
                 sfx=not sfx
                 if sfx:
@@ -203,15 +208,14 @@ while running:
                 else:
                     sfx_button.update_image(NoSfx_img,4.5)
                     pygame.mixer.Channel(0).set_volume(0)
-    elif story:
+
+    elif story==True:
         screen.fill(BLACK)
         screen.blit(comic_panel,(350,0))
-        print("Loading sad_bgm.mp3")
         if next_button.draw(screen):
             story=False
-            pygame.mixer.music.load("bgm.mp3")
-            pygame.mixer.music.play(-1,0.0)
-            pygame.mixer.music.set_volume(0.3)
+            story_channel.pause()
+            main_channel.unpause()
     else:
             screen.blit(background_img, (0,0))
             environment.draw()
