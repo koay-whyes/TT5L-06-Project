@@ -32,10 +32,6 @@ moving_left = False
 moving_right = False 
 shoot = False 
 
-tile_size = 50
-tile_size_2 = 40
-tile_size_3 = 70
-
 #Main Menu images
 title_img = pygame.image.load("images/title.png").convert_alpha()
 settings_img = pygame.image.load("images/settings_button.png").convert_alpha()
@@ -95,20 +91,6 @@ tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
 next_button=menubutton.DrawMenu(850,150,next_img,1.5)
 
-environment_data =[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
-[0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
-]
-environment = MS.Environment(environment_data)
-
 # create sprite groups
 enemy_group = pygame.sprite.Group()
 pepperoni_group = pygame.sprite.Group()
@@ -137,8 +119,18 @@ def reset_level():
     warning=False
     story=False
     pepperoni_group.empty()
-    player = MS.Character("Peppy",200,200,3, 5)
-    enemy = MS.Character("Peppy",430,150,3, 5)
+    enemy_group.empty()
+    item_box_group.empty()
+    item_box = MS.ItemBox('Health', 100, 260)
+    item_box_group.add(item_box)
+    item_box = MS.ItemBox('Ammo', 400, 260)
+    item_box_group.add(item_box)
+    player = MS.Character("Peppy",200,200,3, 5, 20)
+    health_bar = MS.HealthBar(10, 10, player.health, player.health)
+    enemy = MS.Character("Pineapple",500, 200, 3, 2, 20) # change char type later
+    enemy2 = MS.Character('Pineapple', 300, 200, 3, 2, 20)		
+    enemy_group.add(enemy)		
+    enemy_group.add(enemy2)
 
 settings=False
 main_menu=True
@@ -242,7 +234,7 @@ while running:
             #show player health
             health_bar.draw(player.health)
             #show ammo
-            MS.draw_text('AMMO: ', font, WHITE, 10, 35)
+            MS.draw_text('AMMO: ', MS.font, WHITE, 10, 35)
             for x in range(player.ammo):
                 screen.blit(pepperoni_img, (90 + (x * 10), 40))
                 
@@ -253,12 +245,29 @@ while running:
                 enemy.ai()
                 enemy.update()
                 enemy.draw()
+                        # update and draw groups
+            pepperoni_group.update()
+            pepperoni_group.draw(screen)
+            if player.alive:
+                # shoot pepperoni
+                if shoot:
+                    pepperoni = MS.Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
+                    pepperoni_group.add(pepperoni)
+
+                if player.in_air:
+                    player.update_action(2) # 2: jump
+                elif moving_left or moving_right:
+                    player.update_action(1) # 1: run/roll
+                else:
+                    player.update_action(0) # index 0: idle
+                player.move(moving_left, moving_right)
+                # not calling enemy.move()
 
             #Pause Menu
             if pause_button.draw(screen):
                 pause_menu = True
             if pause_menu==True:
-                screen.fill(193, 154, 107)
+                screen.fill((193, 154, 107))
                 #Continue
                 if resume_button.draw(screen):
                     pause_menu=False
@@ -276,24 +285,8 @@ while running:
                         pause_menu=True
                         warning=False
 
-            # update and draw groups
-            pepperoni_group.update()
-            pepperoni_group.draw(screen)
-            if player.alive:
-                # shoot pepperoni
-                if shoot:
-                    pepperoni = MS.Pepperoni(player.rect.centerx + (0.6 * player.rect.size[0]*player.direction), player.rect.centery, player.direction)
-                    pepperoni_group.add(pepperoni)
 
-                if player.in_air:
-                    player.update_action(2) # 2: jump
-                elif moving_left or moving_right:
-                    player.update_action(1) # 1: run/roll
-                else:
-                    player.update_action(0) # index 0: idle
-                player.move(moving_left, moving_right)
-                # not calling enemy.move()
-        
+            
     pygame.display.update() 
 
 pygame.quit()

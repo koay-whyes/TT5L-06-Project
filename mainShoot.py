@@ -307,7 +307,37 @@ class Pepperoni(pygame.sprite.Sprite):
                     
                     enemy.health -= 25
                     self.kill() # delete bullet 
+class Environment():
+    def __init__(self, data):
+        self.tile_list = []
+        # load image
+        block_img = pygame.image.load('images/block.png')
+        # cuttingboard_image = pygame.image.load('')
 
+        row_count = 0
+        for row in data:
+            col_count = 0  
+            for block in row:
+                if block == 1:
+                    img = pygame.transform.scale(block_img, (tile_size, tile_size))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size
+                    img_rect.y = row_count * tile_size
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                if block == 2:
+                    img = pygame.transform.scale(block_img, (tile_size_2, tile_size_2))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size_2
+                    img_rect.y = row_count * tile_size_2
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                col_count += 1
+            row_count += 1
+
+    def draw(self):
+        for tile in self.tile_list:
+            screen.blit(tile[0], tile[1])
 
 
 
@@ -334,79 +364,3 @@ enemy2 = Character('Pineapple', 300, 200, 3, 2, 20)
 enemy_group.add(enemy)		
 enemy_group.add(enemy2)
 
-run = True
-while run:
-
-    clock.tick(FPS)
-    
-    draw_bg()
-    #show player health
-    health_bar.draw(player.health)
-	#show ammo
-    draw_text('AMMO: ', font, WHITE, 10, 35)
-    for x in range(player.ammo):
-        screen.blit(pepperoni_img, (90 + (x * 10), 40))
-          
-    player.update() 
-    player.draw()
-
-    for enemy in enemy_group:
-        enemy.ai()
-        enemy.update()
-        enemy.draw()
-
-    # update and draw groups
-    pepperoni_group.update()
-    item_box_group.update()
-    pepperoni_group.draw(screen)
-    item_box_group.draw(screen)
-
-
-    # update player actions
-    if player.alive:
-        # shoot pepperoni
-        if shoot:
-            player.shoot()
-        if player.in_air:
-            player.update_action(2) # 2: jump
-        elif moving_left or moving_right:
-            player.update_action(1) # 1: run/roll
-        else:
-            player.update_action(0) # index 0: idle
-        player.move(moving_left, moving_right)
-        # not calling enemy.move()
-
-
-    # event in pygame: click/press on keyboard
-    for event in pygame.event.get():
-        # quit game
-        if event.type == pygame.QUIT:
-            run = False
-        # keyboard presses (KEYDOWN)
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                moving_left = True
-            if event.key == pygame.K_d:
-                moving_right = True
-            if event.key == pygame.K_SPACE:
-                shoot = True
-            if event.key == pygame.K_w and player.alive:
-                player.jump = True
-            if event.key == pygame.K_ESCAPE:
-                run = False 
-
-
-
-        # keyboard button released (KEYUP)
-        if event.type == pygame.KEYUP: 
-            if event.key == pygame.K_a :
-                moving_left = False 
-            if event.key == pygame.K_d:
-                moving_right = False 
-            if event.key == pygame.K_SPACE:
-                shoot = False 
-            
-
-    pygame.display.update()
-
-pygame.quit()
