@@ -1,4 +1,4 @@
-import pygame, random, os, menubutton
+import pygame, random, os, menubutton,csv
 from pygame import mixer
 import mainShoot as MS
 pygame.init() 
@@ -130,20 +130,6 @@ resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
 tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
 next_button=menubutton.DrawMenu(850,150,next_img,1.5)
-
-environment_data =[
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
-[0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-[1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1],
-]
-environment = PM.Environment(environment_data)
 
 # create sprite groups
 enemy_group = pygame.sprite.Group()
