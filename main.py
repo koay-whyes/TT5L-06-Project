@@ -60,6 +60,7 @@ back_img = pygame.image.load("images/back_button.png").convert_alpha()
 background_img = pygame.image.load("images/background.jpg")
 
 # load environment images
+bg_img = pygame.image.load("resources/Background/Level 1/level_1.png").convert_alpha()
 # store tiles in a list 
 img_list = []
 for x in range(TILE_TYPES):
@@ -85,6 +86,7 @@ enemy = PM.Character("Peppy",430,150,3, 5) # change char type later
 
 def draw_bg():
     screen.fill(BG)
+    screen.blit(bg_img, (0,0))
 
 # create empty tile list
 environment_data = []
