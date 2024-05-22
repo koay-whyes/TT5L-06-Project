@@ -1,6 +1,8 @@
 import pygame
 import os
 import random
+import csv
+
 pygame.init()
 
 
@@ -16,10 +18,11 @@ FPS = 60
 
 # define game variables
 GRAVITY = 0.75
-TILE_SIZE = 40
-tile_size = 50
-tile_size_2 = 40
-tile_size_3 = 70
+ROWS = 20
+COLS = 200
+TILE_SIZE = SCREEN_HEIGHT // ROWS
+TILE_TYPES = 21
+level = 1
 
 
 # define player action variables
@@ -28,12 +31,18 @@ moving_right = False
 shoot = False 
 
 # load images
+# store tiles in a list
+img_list = []
+for x in range(TILE_TYPES):
+	img = pygame.image.load(f'img/Tile/{x}.png')
+	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+	img_list.append(img)
 # Pepperoni (bullet)
-# !!update image
-pepperoni_img = pygame.image.load('images/icons/pepperoni.png').convert_alpha()
+
+pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 #pick up boxes
-health_box_img = pygame.image.load('images/icons/health_box.png').convert_alpha()
-ammo_box_img = pygame.image.load('images/icons/ammo_box.png').convert_alpha()
+health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
 item_boxes = {
 	'Health'	: health_box_img,
 	'Ammo'		: ammo_box_img
@@ -56,7 +65,8 @@ def draw_text(text, font, text_col, x, y):
 
 def draw_bg():
     screen.fill(BG)
-    pygame.draw.line(screen, WOOD_BROWN,(0,300), (SCREEN_WIDTH, 300) )# start and end coordinate
+    """    bg_img = pygame.image.load('img/level_1.png').convert_alpha()
+    screen.blit(bg_img,(1000,500) )"""
 
 # fixed the bullet-character gap problem
 def custom_collision(character, pepperoni_group):
@@ -104,9 +114,9 @@ class Character(pygame.sprite.Sprite):
             # reset temporary list of images
             temp_list = []
             # count number of files in the folder
-            num_of_frames = len(os.listdir(f"images/{self.char_type}/{self.char_type}_{animation}_Frames"))
+            num_of_frames = len(os.listdir(f"img/{self.char_type}/{self.char_type}_{animation}_Frames"))
             for i in range(num_of_frames):
-                img = pygame.image.load(f"images/{self.char_type}/{self.char_type}_{animation}_Frames/{self.char_type}_{animation}_Frame{i}.png").convert_alpha() # add file directory of the pic
+                img = pygame.image.load(f"img/{self.char_type}/{self.char_type}_{animation}_Frames/{self.char_type}_{animation}_Frame{i}.png").convert_alpha() # add file directory of the pic
                 img = pygame.transform.scale(img, (int(img.get_width()*scale), int(img.get_height()*scale)))
                 temp_list.append(img)
             self.animation_list.append(temp_list)    
@@ -114,6 +124,8 @@ class Character(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
     def update_animation(self):
         # update animation
@@ -176,10 +188,26 @@ class Character(pygame.sprite.Sprite):
             self.vel_y = 10 # set limit not more than 10 
         dy += self.vel_y
 
-        # check collision with floor
+        """# check collision with floor
         if self.rect.bottom + dy >300:
             dy = 300 - self.rect.bottom
-            self.in_air = False 
+            self.in_air = False """
+		#check for collision
+        for tile in world.obstacle_list:
+			#check collision in the x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+			#check for collision in the y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+				#check if below the ground, i.e. jumping
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+				#check if above the ground, i.e. falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].top - self.rect.bottom        
 
         # update rectangle position
         self.rect.x += dx
@@ -235,6 +263,75 @@ class Character(pygame.sprite.Sprite):
 
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
+
+class World():
+	def __init__(self):
+		self.obstacle_list = []
+
+	def process_data(self, data):
+		#iterate through each value in level data file
+		for y, row in enumerate(data):
+			for x, tile in enumerate(row):
+				if tile >= 0:
+					img = img_list[tile]
+					img_rect = img.get_rect()
+					img_rect.x = x * TILE_SIZE
+					img_rect.y = y * TILE_SIZE
+					tile_data = (img, img_rect)
+					if tile >= 0 and tile <= 8:
+						self.obstacle_list.append(tile_data)
+					elif tile >= 9 and tile <= 10:
+						water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
+						water_group.add(water)
+					elif tile >= 11 and tile <= 14:
+						decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
+						decoration_group.add(decoration)
+					elif tile == 15:#create player
+						player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
+						health_bar = HealthBar(10, 10, player.health, player.health)
+					elif tile == 16:#create enemies
+						enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+						enemy_group.add(enemy)
+					elif tile == 17:#create ammo box
+						item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
+						item_box_group.add(item_box)
+					elif tile == 19:#create health box
+						item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
+						item_box_group.add(item_box)
+					elif tile == 20:#create exit
+						exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
+						exit_group.add(exit)
+
+		return player, health_bar
+
+
+	def draw(self):
+		for tile in self.obstacle_list:
+			screen.blit(tile[0], tile[1])
+
+
+class Decoration(pygame.sprite.Sprite):
+	def __init__(self, img, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = img
+		self.rect = self.image.get_rect()
+		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+
+
+class Water(pygame.sprite.Sprite):
+	def __init__(self, img, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = img
+		self.rect = self.image.get_rect()
+		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+
+
+class Exit(pygame.sprite.Sprite):
+	def __init__(self, img, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = img
+		self.rect = self.image.get_rect()
+		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 class ItemBox(pygame.sprite.Sprite):
 	def __init__(self, item_type, x, y):
@@ -296,13 +393,17 @@ class Pepperoni(pygame.sprite.Sprite):
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()
 
+		#check for collision with level
+        for tile in world.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                self.kill()
+                    
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
                 player.health -= 5
                 self.kill() # delete bullet 
-
-        
+       
         
         for enemy in enemy_group:
             if pygame.sprite.spritecollide(enemy, pepperoni_group, False, custom_collision):
@@ -310,37 +411,7 @@ class Pepperoni(pygame.sprite.Sprite):
                     
                     enemy.health -= 25
                     self.kill() # delete bullet 
-class Environment():
-    def __init__(self, data):
-        self.tile_list = []
-        # load image
-        block_img = pygame.image.load('images/block.png')
-        # cuttingboard_image = pygame.image.load('')
 
-        row_count = 0
-        for row in data:
-            col_count = 0  
-            for block in row:
-                if block == 1:
-                    img = pygame.transform.scale(block_img, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if block == 2:
-                    img = pygame.transform.scale(block_img, (tile_size_2, tile_size_2))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size_2
-                    img_rect.y = row_count * tile_size_2
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                col_count += 1
-            row_count += 1
-
-    def draw(self):
-        for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
 
 
 
@@ -350,20 +421,120 @@ class Environment():
 enemy_group = pygame.sprite.Group()
 pepperoni_group = pygame.sprite.Group()
 item_box_group = pygame.sprite.Group()
+decoration_group = pygame.sprite.Group()
+water_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group()
 
-#temp - create item boxes
-item_box = ItemBox('Health', 100, 260)
-item_box_group.add(item_box)
-item_box = ItemBox('Ammo', 400, 260)
-item_box_group.add(item_box)
+
 
 
 
 # create an player instance of the class for player
-player = Character("Peppy",200,200,3, 5, 20)
+"""player = Character("Peppy",200,200,1.65, 5, 20)
 health_bar = HealthBar(10, 10, player.health, player.health)
-enemy = Character("Pineapple",500, 200, 3, 2, 20) # change char type later
-enemy2 = Character('Pineapple', 300, 200, 3, 2, 20)		
+enemy = Character("Pineapple",500, 200, 1.65, 2, 20) # change char type later
+enemy2 = Character('Pineapple', 300, 200, 1.65, 2, 20)		
 enemy_group.add(enemy)		
-enemy_group.add(enemy2)
+enemy_group.add(enemy2)"""
 
+#create empty tile list
+world_data = []
+for row in range(ROWS):
+	r = [-1] * COLS
+	world_data.append(r)
+#load in level data and create world
+with open(f'level{level}_data.csv', newline='') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for x, row in enumerate(reader):
+		for y, tile in enumerate(row):
+			world_data[x][y] = int(tile)
+world = World()
+player, health_bar = world.process_data(world_data)
+
+
+run = True
+while run:
+
+    clock.tick(FPS)
+    # update background
+    draw_bg()
+    #draw world map
+    world.draw()
+    #show player health
+    health_bar.draw(player.health)
+	#show ammo
+    draw_text('PEPPERONI: ', font, WOOD_BROWN, 10, 45)
+    for x in range(player.ammo):
+        screen.blit(pepperoni_img, (125 + (x * 10), 40))
+          
+    player.update() 
+    player.draw()
+
+    for enemy in enemy_group:
+        enemy.ai()
+        enemy.update()
+        enemy.draw()
+
+    # update and draw groups
+    pepperoni_group.update()
+    item_box_group.update()
+    decoration_group.update()
+    water_group.update()
+    exit_group.update()
+
+    pepperoni_group.draw(screen)
+    item_box_group.draw(screen)
+    decoration_group.draw(screen)
+    water_group.draw(screen)
+    exit_group.draw(screen)
+
+
+
+    # update player actions
+    if player.alive:
+        # shoot pepperoni
+        if shoot:
+            player.shoot()
+        if player.in_air:
+            player.update_action(2) # 2: jump
+        elif moving_left or moving_right:
+            player.update_action(1) # 1: run/roll
+        else:
+            player.update_action(0) # index 0: idle
+        player.move(moving_left, moving_right)
+        # not calling enemy.move()
+
+
+    # event in pygame: click/press on keyboard
+    for event in pygame.event.get():
+        # quit game
+        if event.type == pygame.QUIT:
+            run = False
+        # keyboard presses (KEYDOWN)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:
+                moving_left = True
+            if event.key == pygame.K_d:
+                moving_right = True
+            if event.key == pygame.K_SPACE:
+                shoot = True
+            if event.key == pygame.K_w and player.alive:
+                player.jump = True
+            if event.key == pygame.K_ESCAPE:
+                run = False 
+
+
+
+        # keyboard button released (KEYUP)
+        if event.type == pygame.KEYUP: 
+            if event.key == pygame.K_a :
+                moving_left = False 
+            if event.key == pygame.K_d:
+                moving_right = False 
+            if event.key == pygame.K_SPACE:
+                shoot = False 
+            
+
+    pygame.display.update()
+
+pygame.quit()
