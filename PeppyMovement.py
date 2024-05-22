@@ -1,5 +1,7 @@
 import pygame
 import os
+from environment import Environment
+import csv
 
 pygame.init()
 
@@ -8,6 +10,22 @@ pygame.init()
 SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)"""
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 500
+SCROLL_THRESH = 200
+ROWS = 20
+COLS = 200
+WIDTH = 1000
+HEIGHT = 500
+TILE_SIZE = HEIGHT // ROWS
+TILE_TYPES = 16
+screen_scroll = 0
+bg_scroll = 0
+level = 1
+
+img_list = []
+for x in range(TILE_TYPES):
+    img = pygame.image.load(f'resources/Interactive Elements/{x}.png')
+    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+    img_list.append(img)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Peppy the Pizza') # changed name
@@ -81,6 +99,8 @@ class Character(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
     def update_animation(self):
         # update animation
@@ -108,6 +128,7 @@ class Character(pygame.sprite.Sprite):
 
     def move(self, moving_left, moving_right):
         # reset movement variables
+        screen_scroll = 0
         dx = 0 # will need these for collision
         dy = 0
 
@@ -133,14 +154,55 @@ class Character(pygame.sprite.Sprite):
             self.vel_y = 10 # set limit not more than 10 
         dy += self.vel_y
 
-        # check collision with floor
-        if self.rect.bottom + dy > SCREEN_HEIGHT - tile_size:
-            dy = SCREEN_HEIGHT - (tile_size + self.rect.bottom)
-            self.in_air = False 
+        # create empty tile list
+        environment_data = []
+        # -1 means empty
+        for row in range(ROWS):
+            r = [-1] * COLS
+            environment_data.append(r)
+
+        # load in level data and create environment
+        # loading using csv
+        with open(f'level{level}_data.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            # getting individual values
+            for x, row in enumerate(reader):
+                for y, tile in enumerate(row):
+                    environment_data[x][y] = int(tile)
+
+        environment = Environment(img_list)
+        environment.process_data(environment_data)
+
+        collision_list = environment.collision_list
+
+        # check for collision 
+        for tile in collision_list:
+            # check collision in the x direction between rect
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+            # check collision in the y direction between rect
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                # check if below the ground, jumping
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top # head
+                # check if above the ground, falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].top - self.rect.bottom # feet 
 
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
+
+        # update scroll based on player position
+        if self.char_type == 'player':
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
+                self.rect.x -= dx
+                screen_scroll = -dx
+
+        return screen_scroll
     
 
     def draw(self):
@@ -164,34 +226,6 @@ class Pepperoni(pygame.sprite.Sprite):
         # check if pepperoni has gone off screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()
-
-class Environment():
-    def __init__(self, data):
-        self.tile_list = []
-        # load image
-        block_img = pygame.image.load('images/block.png')
-        # cuttingboard_image = pygame.image.load('')
-
-        row_count = 0
-        for row in data:
-            col_count = 0  
-            for block in row:
-                if block == 1:
-                    img = pygame.transform.scale(block_img, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if block == 2:
-                    img = pygame.transform.scale(block_img, (tile_size_2, tile_size_2))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size_2
-                    img_rect.y = row_count * tile_size_2
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                col_count += 1
-            row_count += 1
 
     def draw(self):
         for tile in self.tile_list:

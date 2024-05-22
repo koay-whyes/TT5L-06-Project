@@ -30,10 +30,14 @@ FPS = 60
 # define game variables
 GRAVITY = 0.75
 # environment variables
+# the distance the player can get to the edge of the screen before it starts to scroll (pixels)
+SCROLL_THRESH = 200
 ROWS = 20
 COLS = 200
 TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 16
+screen_scroll = 0
+bg_scroll = 0
 level = 1
 
 # define player action variables
@@ -193,7 +197,7 @@ while running:
                     player.update_action(1) # 1: run/roll
                 else:
                     player.update_action(0) # index 0: idle
-                player.move(moving_left, moving_right)
+                screen_scroll = player.move(moving_left, moving_right)
                 # not calling enemy.move()
         
     pygame.display.update() 

@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import csv
+import PeppyMovement as PM
 
 WIDTH = 1000
 HEIGHT = 500
@@ -41,5 +42,6 @@ class Environment():
 
     def draw(self, surface):
         for tile in self.collision_list:
+            tile[1][0] += PM.screen_scroll
             # img and rect
             surface.blit(tile[0], tile[1])
