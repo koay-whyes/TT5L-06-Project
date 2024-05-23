@@ -198,7 +198,10 @@ class Character(pygame.sprite.Sprite):
 
         # update scroll based on player position
         if self.char_type == 'player':
-            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH:
+                self.rect.x -= dx
+                screen_scroll = -dx
+            elif self.rect.left < SCROLL_THRESH:
                 self.rect.x -= dx
                 screen_scroll = -dx
 

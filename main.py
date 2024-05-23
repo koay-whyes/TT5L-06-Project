@@ -197,7 +197,9 @@ while running:
                     player.update_action(1) # 1: run/roll
                 else:
                     player.update_action(0) # index 0: idle
-                screen_scroll = player.move(moving_left, moving_right)
+
+                PM.screen_scroll = player.move(moving_left, moving_right)
+                print(PM.screen_scroll)
                 # not calling enemy.move()
         
     pygame.display.update() 
