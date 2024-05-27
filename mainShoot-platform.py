@@ -309,7 +309,6 @@ class World():
 		for tile in self.obstacle_list:
 			screen.blit(tile[0], tile[1])
 
-
 class Decoration(pygame.sprite.Sprite):
 	def __init__(self, img, x, y):
 		pygame.sprite.Sprite.__init__(self)
@@ -317,14 +316,12 @@ class Decoration(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
-
 class Water(pygame.sprite.Sprite):
 	def __init__(self, img, x, y):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = img
 		self.rect = self.image.get_rect()
 		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
-
 
 class Exit(pygame.sprite.Sprite):
 	def __init__(self, img, x, y):
@@ -354,7 +351,6 @@ class ItemBox(pygame.sprite.Sprite):
 				player.ammo += 15
 			#delete the item box
 			self.kill()
-
 
 class HealthBar():
 	def __init__(self, x, y, health, max_health):
