@@ -1,7 +1,6 @@
 import pygame
 from pygame.locals import *
 import csv
-import PeppyMovement as PM
 
 
 WIDTH = 1000

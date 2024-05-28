@@ -21,7 +21,7 @@ GRAVITY = 0.75
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 21
+TILE_TYPES = 25
 level = 1
 
 
@@ -34,7 +34,7 @@ shoot = False
 # store tiles in a list
 img_list = []
 for x in range(TILE_TYPES):
-	img = pygame.image.load(f'img/Tile/{x}.png')
+	img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png')
 	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
 	img_list.append(img)
 # Pepperoni (bullet)

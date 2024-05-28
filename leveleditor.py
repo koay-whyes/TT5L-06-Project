@@ -21,7 +21,7 @@ pygame.display.set_caption("Level Editor")
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 16
+TILE_TYPES = 25
 current_tile = 0
 level = 0
 
@@ -32,19 +32,19 @@ scroll_speed = 1
 
 # load images
 background_images = {
-    1: pygame.image.load("resources/Background/Level 1/level_1.png").convert_alpha(),
-    2: pygame.image.load("resources/Background/Level 2/Level 2.png").convert_alpha(),
-    3: pygame.image.load("resources/Background/Level 1/level_1.png").convert_alpha()
+    1: pygame.image.load("img/level_1.png").convert_alpha(),
+    2: pygame.image.load("img/level_2.png").convert_alpha(),
+    3: pygame.image.load("img/level_1.png").convert_alpha()
 }
 # store images in a list
 img_list = []
 for x in range(TILE_TYPES):
-    img = pygame.image.load(f'resources/Interactive Elements/{x}.png').convert_alpha()
+    img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png').convert_alpha()
     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
     img_list.append(img)
 
-save_img = pygame.image.load('resources/button_1.png').convert_alpha()
-load_img = pygame.image.load('resources/button_2.png').convert_alpha()
+save_img = pygame.image.load('img/button_1.png').convert_alpha()
+load_img = pygame.image.load('img/button_2.png').convert_alpha()
 
 
 
@@ -114,15 +114,16 @@ save_button = menubutton.DrawMenu(SCREEN_WIDTH // 2, SCREEN_HEIGHT + LOWER_MARGI
 load_button = menubutton.DrawMenu(SCREEN_WIDTH // 2 + 200, SCREEN_HEIGHT + LOWER_MARGIN - 50, load_img, 1)
 
 # create button list
+# tiles in the margin
 button_list = []
 button_col = 0
 button_row = 0
 for i in range(len(img_list)):
     # from menubutton file
-    tile_button = menubutton.DrawMenu(SCREEN_WIDTH + (75 * button_col) + 50, (75 * button_row) + 50, img_list[i], 1)
+    tile_button = menubutton.DrawMenu(SCREEN_WIDTH + (75 * button_col) + 25, (75 * button_row) + 50, img_list[i], 1)
     button_list.append(tile_button)
     button_col += 1
-    if button_col == 3:
+    if button_col == 4:
         button_row += 1
         button_col = 0
 
