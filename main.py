@@ -20,7 +20,7 @@ GRAVITY = 0.75
 ROWS = 20
 COLS = 200
 TILE_SIZE = HEIGHT // ROWS
-TILE_TYPES = 25
+TILE_TYPES = 27
 level = 1
 
 
@@ -29,7 +29,10 @@ moving_left = False
 moving_right = False 
 shoot = False 
 
-# load img
+# load images
+bg_img = pygame.image.load('img/level_1.png').convert_alpha()
+
+
 # store tiles in a list
 img_list = []
 for x in range(TILE_TYPES):
@@ -64,8 +67,8 @@ def draw_text(text, font, text_col, x, y):
 
 def draw_bg():
     screen.fill(BG)
-    """    bg_img = pygame.image.load('img/level_1.png').convert_alpha()
-    screen.blit(bg_img,(1000,500) )"""
+    # bg_img = pygame.image.load('img/level_1.png').convert_alpha()
+    screen.blit(bg_img,(0,0) )
 
 # fixed the bullet-character gap problem
 def custom_collision(character, pepperoni_group):

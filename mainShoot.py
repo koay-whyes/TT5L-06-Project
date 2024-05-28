@@ -21,7 +21,7 @@ GRAVITY = 0.75
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 25
+TILE_TYPES = 27
 level = 1
 
 
@@ -278,27 +278,27 @@ class World():
 					img_rect.x = x * TILE_SIZE
 					img_rect.y = y * TILE_SIZE
 					tile_data = (img, img_rect)
-					if tile >= 0 and tile <= 8:
+					if tile >= 0 and tile <= 18:
 						self.obstacle_list.append(tile_data)
-					elif tile >= 9 and tile <= 10:
-						water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
-						water_group.add(water)
-					elif tile >= 11 and tile <= 14:
-						decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
-						decoration_group.add(decoration)
-					elif tile == 15:#create player
+					# elif tile >= 9 and tile <= 10:
+					# 	water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
+					# 	water_group.add(water)
+					# elif tile >= 11 and tile <= 14:
+					# 	decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
+					# 	decoration_group.add(decoration)
+					elif tile == 25:#create player
 						player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
 						health_bar = HealthBar(10, 10, player.health, player.health)
-					elif tile == 16:#create enemies
+					elif tile == 26:#create enemies
 						enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
 						enemy_group.add(enemy)
-					elif tile == 17:#create ammo box
-						item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
-						item_box_group.add(item_box)
-					elif tile == 19:#create health box
-						item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
-						item_box_group.add(item_box)
-					elif tile == 20:#create exit
+					# elif tile == 17:#create ammo box
+					# 	item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
+					# 	item_box_group.add(item_box)
+					# elif tile == 19:#create health box
+					# 	item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
+					# 	item_box_group.add(item_box)
+					elif tile == 19:#create exit
 						exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
 						exit_group.add(exit)
 
