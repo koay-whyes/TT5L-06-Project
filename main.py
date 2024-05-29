@@ -134,8 +134,27 @@ next_button=menubutton.DrawMenu(850,150,next_img,1.5)
 
 #reset level
 def reset_level():
-    global player, enemy
+    global player,enemy,health_bar
+    enemy_group.empty()
+    item_box_group.empty()
+    decoration_group.empty()
+    water_group.empty()
+    exit_group.empty()
     pepperoni_group.empty()
+
+    #create empty tile list
+    world_data = []
+    for row in range(ROWS):
+        r = [-1] * COLS
+        world_data.append(r)
+    #load in level data and create world
+    with open(f'level{level}_data.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for x, row in enumerate(reader):
+            for y, tile in enumerate(row):
+                world_data[x][y] = int(tile)
+    world = World()
+    player, health_bar = world.process_data(world_data)
 
 settings=False
 main_menu=True
