@@ -23,6 +23,18 @@ TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 21
 level = 1
 
+#music
+MainMusic = pygame.mixer.Sound("bgm.mp3") 
+StoryMusic = pygame.mixer.Sound("sad_bgm.mp3")
+GameOverMusic = pygame.mixer.Sound("game_over_bgm.mp3")
+
+main_channel = pygame.mixer.Channel(1)
+story_channel = pygame.mixer.Channel(2)
+game_over_channel = pygame.mixer.Channel(3)
+
+main_channel.play(pygame.mixer.Sound(MainMusic), loops=-1, fade_ms=1000)
+story_channel.play(pygame.mixer.Sound(StoryMusic), loops=-1, fade_ms=1000)
+game_over_channel.play(pygame.mixer.Sound(GameOverMusic), loops=-1, fade_ms=10)
 
 # define player action variables
 moving_left = False
@@ -94,6 +106,7 @@ sfx_img = pygame.image.load("img/sfx_button.png").convert_alpha()
 NoSfx_img = pygame.image.load("img/NoSfx_button.png").convert_alpha()
 sfx_text_img = pygame.image.load("img/sfx_text.png").convert_alpha()
 music_img = pygame.image.load("img/music_text.png").convert_alpha()
+full_scren_img = pygame.image.load("img/full_screen.png").convert_alpha()
 
 #Game img
 comic_panel  = pygame.image.load("img/comic_panel.jpeg")
@@ -130,8 +143,8 @@ resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
 tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
 next_button=menubutton.DrawMenu(850,150,next_img,1.5)
-
-
+full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
+    
 #reset level
 def reset_level():
     global player,enemy,health_bar
@@ -156,6 +169,17 @@ def reset_level():
     world = World()
     player, health_bar = world.process_data(world_data)
 
+def game_over():
+    game_over_background_img=pygame.image.load("img/game_over_bg.png")
+    game_over_restart_img=pygame.image.load("img/game_over_restart.png").convert_alpha()
+    game_over_restart_button = menubutton.DrawMenu(440,360,game_over_restart_img,2.5)
+    screen.blit(game_over_background_img,(0,0))
+    main_channel.pause()
+    game_over_channel.unpause()
+    if game_over_restart_button.draw(screen):
+        reset_level()
+        main_channel.unpause()
+        game_over_channel.pause()
 settings=False
 main_menu=True
 sound_on=True
@@ -164,14 +188,6 @@ pause_menu=False
 warning=False
 story=False
 # Game loop
-MainMusic = pygame.mixer.Sound("bgm.mp3") 
-StoryMusic = pygame.mixer.Sound("sad_bgm.mp3")
-
-main_channel = pygame.mixer.Channel(1)
-story_channel = pygame.mixer.Channel(2)
-
-main_channel.play(pygame.mixer.Sound(MainMusic), loops=-1, fade_ms=1000)
-story_channel.play(pygame.mixer.Sound(StoryMusic), loops=-1, fade_ms=1000)
 
 running = True 
 while running: 
@@ -207,6 +223,7 @@ while running:
         screen.blit(menu_background_img, (0,0))
         title.draw(screen)
         story_channel.pause()
+        game_over_channel.pause()
         if exit_button.draw(screen):
             running=False
         if settings_button.draw(screen):
@@ -245,6 +262,8 @@ while running:
                 else:
                     sfx_button.update_image(NoSfx_img,4.5)
                     pygame.mixer.Channel(0).set_volume(0)
+        if full_screen_button.draw(screen):
+            screen=pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
     elif story==True:
         screen.fill(BLACK)
@@ -327,6 +346,8 @@ while running:
                     elif x_button.draw(screen):
                         pause_menu=True
                         warning=False
+            if player.alive==False:
+                game_over()
 
     pygame.display.update() 
 
