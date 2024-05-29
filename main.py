@@ -134,8 +134,22 @@ next_button=menubutton.DrawMenu(850,150,next_img,1.5)
 
 #reset level
 def reset_level():
-    global player, enemy
+    # global player, enemy
     pepperoni_group.empty()
+    enemy_group.empty()
+    item_box_group.empty()
+    decoration_group.empty()
+    water_group.empty()
+    exit_group.empty()
+
+    #create empty tile list
+    data = []
+    for row in range(ROWS):
+        r = [-1] * COLS
+        data.append(r)
+    
+    return data
+
 
 settings=False
 main_menu=True
@@ -294,7 +308,16 @@ while running:
                 #Restart Level
                 if restart_button.draw(screen):
                     pause_menu=False
-                    reset_level()
+                    world_data = reset_level()
+                    #load in level data and create world
+                    with open(f'level{level}_data.csv', newline='') as csvfile:
+                        reader = csv.reader(csvfile, delimiter=',')
+                        for x, row in enumerate(reader):
+                            for y, tile in enumerate(row):
+                                world_data[x][y] = int(tile)
+                    world = World()
+                    player, health_bar = world.process_data(world_data)
+                    
                 if menu_button.draw(screen):
                     warning=True
                 if warning == True: 
@@ -304,7 +327,16 @@ while running:
                         pause_menu=False
                         settings=False
                         warning=False
-                        reset_level()
+                        world_data = reset_level()
+                        #load in level data and create world
+                        with open(f'level{level}_data.csv', newline='') as csvfile:
+                            reader = csv.reader(csvfile, delimiter=',')
+                            for x, row in enumerate(reader):
+                                for y, tile in enumerate(row):
+                                    world_data[x][y] = int(tile)
+                        world = World()
+                        player, health_bar = world.process_data(world_data)
+
                     elif x_button.draw(screen):
                         pause_menu=True
                         warning=False
