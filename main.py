@@ -21,6 +21,9 @@ ROWS = 20
 COLS = 200
 TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 27
+SCROLL_THRESH = 200
+screen_scroll = 0
+bg_scroll = 0
 level = 1
 
 
@@ -283,7 +286,9 @@ while running:
                     player.update_action(1) # 1: run/roll
                 else:
                     player.update_action(0) # index 0: idle
-                player.move(moving_left, moving_right)
+                screen_scroll = player.move(moving_left, moving_right)
+
+                print(screen_scroll)
                 # not calling enemy.move()
 
             #Pause Menu

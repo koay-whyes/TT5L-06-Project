@@ -18,10 +18,13 @@ FPS = 60
 
 # define game variables
 GRAVITY = 0.75
+SCROLL_THRESH = 200
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 27
+screen_scroll = 0
+bg_scroll = 0
 level = 1
 
 
@@ -163,6 +166,7 @@ class Character(pygame.sprite.Sprite):
 
     def move(self, moving_left, moving_right):
         # reset movement variables
+        screen_scroll = 0
         dx = 0 # will need these for collision
         dy = 0
 
@@ -212,7 +216,17 @@ class Character(pygame.sprite.Sprite):
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
-    
+
+        # update scroll based on player position
+        if self.char_type == 'Peppy':
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
+                self.rect.x -= dx
+                screen_scroll = -dx
+        return screen_scroll
+                  
+
+
+
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20 # reload speed of bullet
@@ -307,7 +321,8 @@ class World():
 
 	def draw(self):
 		for tile in self.obstacle_list:
-			screen.blit(tile[0], tile[1])
+                  tile[1][0] +- screen_scroll
+                  screen.blit(tile[0], tile[1])
 
 
 class Decoration(pygame.sprite.Sprite):
