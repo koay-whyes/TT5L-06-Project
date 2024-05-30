@@ -37,9 +37,9 @@ shoot = False
 # store tiles in a list
 img_list = []
 for x in range(TILE_TYPES):
-	img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png')
-	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
-	img_list.append(img)
+    img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png')
+    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+    img_list.append(img)
 # Pepperoni (bullet)
 
 pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
@@ -47,8 +47,8 @@ pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
 ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
 item_boxes = {
-	'Health'	: health_box_img,
-	'Ammo'		: ammo_box_img
+    'Health'	: health_box_img,
+    'Ammo'		: ammo_box_img
 }
 
 # define colours
@@ -58,7 +58,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
-	
+    
 #define font
 font = pygame.font.SysFont('Futura', 30)
 
@@ -196,18 +196,18 @@ class Character(pygame.sprite.Sprite):
         if self.rect.bottom + dy >300:
             dy = 300 - self.rect.bottom
             self.in_air = False """
-		#check for collision
+        #check for collision
         for tile in world.obstacle_list:
-			#check collision in the x direction
+            #check collision in the x direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
-			#check for collision in the y direction
+            #check for collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-				#check if below the ground, i.e. jumping
+                #check if below the ground, i.e. jumping
                 if self.vel_y < 0:
                     self.vel_y = 0
                     dy = tile[1].bottom - self.rect.top
-				#check if above the ground, i.e. falling
+                #check if above the ground, i.e. falling
                 elif self.vel_y >= 0:
                     self.vel_y = 0
                     self.in_air = False
@@ -234,18 +234,18 @@ class Character(pygame.sprite.Sprite):
             pepperoni_group.add(pepperoni)
             # reduce ammo
             self.ammo -= 1
-	
+    
     def ai(self):
         if self.alive and player.alive:
             if self.idling == False and random.randint(1, 200) == 1:
                 self.update_action(0)#0: idle
                 self.idling = True
                 self.idling_counter = 50
-			#check if the ai in near the player
+            #check if the ai in near the player
             if self.vision.colliderect(player.rect):
-				#stop running and face the player
+                #stop running and face the player
                 self.update_action(0)#0: idle
-				#shoot
+                #shoot
                 self.shoot()
             else:
                 if self.idling == False:
@@ -279,113 +279,113 @@ class Character(pygame.sprite.Sprite):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
 
 class World():
-	def __init__(self):
-		self.obstacle_list = []
+    def __init__(self):
+        self.obstacle_list = []
 
-	def process_data(self, data):
-		#iterate through each value in level data file
-		for y, row in enumerate(data):
-			for x, tile in enumerate(row):
-				if tile >= 0:
-					img = img_list[tile]
-					img_rect = img.get_rect()
-					img_rect.x = x * TILE_SIZE
-					img_rect.y = y * TILE_SIZE
-					tile_data = (img, img_rect)
-					if tile >= 0 and tile <= 18:
-						self.obstacle_list.append(tile_data)
-					# elif tile >= 9 and tile <= 10:
-					# 	water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
-					# 	water_group.add(water)
-					# elif tile >= 11 and tile <= 14:
-					# 	decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
-					# 	decoration_group.add(decoration)
-					elif tile == 25:#create player
-						player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
-						health_bar = HealthBar(10, 10, player.health, player.health)
-					elif tile == 26:#create enemies
-						enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
-						enemy_group.add(enemy)
-					# elif tile == 17:#create ammo box
-					# 	item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
-					# 	item_box_group.add(item_box)
-					# elif tile == 19:#create health box
-					# 	item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
-					# 	item_box_group.add(item_box)
-					elif tile == 19:#create exit
-						exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
-						exit_group.add(exit)
+    def process_data(self, data):
+        #iterate through each value in level data file
+        for y, row in enumerate(data):
+            for x, tile in enumerate(row):
+                if tile >= 0:
+                    img = img_list[tile]
+                    img_rect = img.get_rect()
+                    img_rect.x = x * TILE_SIZE
+                    img_rect.y = y * TILE_SIZE
+                    tile_data = (img, img_rect)
+                    if tile >= 0 and tile <= 18:
+                        self.obstacle_list.append(tile_data)
+                    # elif tile >= 9 and tile <= 10:
+                    # 	water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
+                    # 	water_group.add(water)
+                    elif tile == 21:
+                         decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
+                         decoration_group.add(decoration)
+                    elif tile == 25:#create player
+                        player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
+                        health_bar = HealthBar(10, 10, player.health, player.health)
+                    elif tile == 26:#create enemies
+                        enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy_group.add(enemy)
+                    # elif tile == 17:#create ammo box
+                    # 	item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
+                    # 	item_box_group.add(item_box)
+                    # elif tile == 19:#create health box
+                    # 	item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
+                    # 	item_box_group.add(item_box)
+                    elif tile == 19:#create exit
+                        exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
+                        exit_group.add(exit)
 
-		return player, health_bar
+        return player, health_bar
 
 
-	def draw(self):
-		for tile in self.obstacle_list:
+    def draw(self):
+        for tile in self.obstacle_list:
                   tile[1][0] += screen_scroll
                   screen.blit(tile[0], tile[1])
 
 
 class Decoration(pygame.sprite.Sprite):
-	def __init__(self, img, x, y):
-		pygame.sprite.Sprite.__init__(self)
-		self.image = img
-		self.rect = self.image.get_rect()
-		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 
 class Water(pygame.sprite.Sprite):
-	def __init__(self, img, x, y):
-		pygame.sprite.Sprite.__init__(self)
-		self.image = img
-		self.rect = self.image.get_rect()
-		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 
 class Exit(pygame.sprite.Sprite):
-	def __init__(self, img, x, y):
-		pygame.sprite.Sprite.__init__(self)
-		self.image = img
-		self.rect = self.image.get_rect()
-		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 class ItemBox(pygame.sprite.Sprite):
-	def __init__(self, item_type, x, y):
-		pygame.sprite.Sprite.__init__(self)
-		self.item_type = item_type
-		self.image = item_boxes[self.item_type]
-		self.rect = self.image.get_rect()
-		self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+    def __init__(self, item_type, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.item_type = item_type
+        self.image = item_boxes[self.item_type]
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 
-	def update(self):
-		#check if the player has picked up the box
-		if pygame.sprite.collide_rect(self, player):
-			#check what kind of box it was
-			if self.item_type == 'Health':
-				player.health += 25
-				if player.health > player.max_health:
-					player.health = player.max_health
-			elif self.item_type == 'Ammo':
-				player.ammo += 15
-			#delete the item box
-			self.kill()
+    def update(self):
+        #check if the player has picked up the box
+        if pygame.sprite.collide_rect(self, player):
+            #check what kind of box it was
+            if self.item_type == 'Health':
+                player.health += 25
+                if player.health > player.max_health:
+                    player.health = player.max_health
+            elif self.item_type == 'Ammo':
+                player.ammo += 15
+            #delete the item box
+            self.kill()
 
 
 class HealthBar():
-	def __init__(self, x, y, health, max_health):
-		self.x = x
-		self.y = y
-		self.health = health
-		self.max_health = max_health
+    def __init__(self, x, y, health, max_health):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.max_health = max_health
 
-	def draw(self, health):
-		#update with new health
-		self.health = health
-		#calculate health ratio
-		ratio = self.health / self.max_health
-		pygame.draw.rect(screen, BLACK, (self.x - 2, self.y - 2, 154, 24))
-		pygame.draw.rect(screen, RED, (self.x, self.y, 150, 20))
-		pygame.draw.rect(screen, GREEN, (self.x, self.y, 150 * ratio, 20))
+    def draw(self, health):
+        #update with new health
+        self.health = health
+        #calculate health ratio
+        ratio = self.health / self.max_health
+        pygame.draw.rect(screen, BLACK, (self.x - 2, self.y - 2, 154, 24))
+        pygame.draw.rect(screen, RED, (self.x, self.y, 150, 20))
+        pygame.draw.rect(screen, GREEN, (self.x, self.y, 150 * ratio, 20))
 
 class Pepperoni(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
@@ -408,7 +408,7 @@ class Pepperoni(pygame.sprite.Sprite):
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()
 
-		#check for collision with level
+        #check for collision with level
         for tile in world.obstacle_list:
             if tile[1].colliderect(self.rect):
                 self.kill()
@@ -455,13 +455,13 @@ enemy_group.add(enemy2)"""
 #create empty tile list
 world_data = []
 for row in range(ROWS):
-	r = [-1] * COLS
-	world_data.append(r)
+    r = [-1] * COLS
+    world_data.append(r)
 #load in level data and create world
 with open(f'level{level}_data.csv', newline='') as csvfile:
-	reader = csv.reader(csvfile, delimiter=',')
-	for x, row in enumerate(reader):
-		for y, tile in enumerate(row):
-			world_data[x][y] = int(tile)
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)
 world = World()
 player, health_bar = world.process_data(world_data)
