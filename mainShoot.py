@@ -355,7 +355,6 @@ class ItemBox(pygame.sprite.Sprite):
 			#delete the item box
 			self.kill()
 
-
 class HealthBar():
 	def __init__(self, x, y, health, max_health):
 		self.x = x

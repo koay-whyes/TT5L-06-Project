@@ -198,13 +198,13 @@ while running:
             running = False
         # keyboard presses (KEYDOWN)
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
+            if event.key == pygame.K_a and not pause_menu:
                 moving_left = True
-            elif event.key == pygame.K_d:
+            elif event.key == pygame.K_d and not pause_menu:
                 moving_right = True
-            elif event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE and not pause_menu:
                 shoot = True
-            elif event.key == pygame.K_w and player.alive:
+            elif event.key == pygame.K_w and player.alive and not pause_menu:
                 player.jump = True
             elif event.key == pygame.K_ESCAPE:
                 running = False 
@@ -273,6 +273,7 @@ while running:
             story_channel.pause()
             main_channel.unpause()
     else:
+        if not pause_menu:
             # update background
             draw_bg()
             #draw world map
@@ -286,7 +287,6 @@ while running:
                 
             player.update() 
             player.draw()
-
             for enemy in enemy_group:
                 enemy.ai()
                 enemy.update()
@@ -321,33 +321,33 @@ while running:
                 player.move(moving_left, moving_right)
                 # not calling enemy.move()
 
-            #Pause Menu
-            if pause_button.draw(screen):
-                pause_menu = True
-            if pause_menu==True:
-                screen.fill(WOOD_BROWN)
-                #Continue
-                if resume_button.draw(screen):
+        #Pause Menu
+        if pause_button.draw(screen):
+            pause_menu = True
+        if pause_menu==True:
+            screen.fill(WOOD_BROWN)
+            #Continue
+            if resume_button.draw(screen):
+                pause_menu=False
+            #Restart Level
+            if restart_button.draw(screen):
+                pause_menu=False
+                reset_level()
+            if menu_button.draw(screen):
+                warning=True
+            if warning == True: 
+                screen.blit(warning_scaled_img, (370,90))
+                if tick_button.draw(screen):
+                    main_menu=True
                     pause_menu=False
-                #Restart Level
-                if restart_button.draw(screen):
-                    pause_menu=False
+                    settings=False
+                    warning=False
                     reset_level()
-                if menu_button.draw(screen):
-                    warning=True
-                if warning == True: 
-                    screen.blit(warning_scaled_img, (370,90))
-                    if tick_button.draw(screen):
-                        main_menu=True
-                        pause_menu=False
-                        settings=False
-                        warning=False
-                        reset_level()
-                    elif x_button.draw(screen):
-                        pause_menu=True
-                        warning=False
-            if player.alive==False:
-                game_over()
+                elif x_button.draw(screen):
+                    pause_menu=True
+                    warning=False
+        if player.alive==False:
+            game_over()
 
     pygame.display.update() 
 
