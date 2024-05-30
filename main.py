@@ -276,7 +276,7 @@ while running:
 
 
             # update player actions
-            if player.alive:
+            if player.alive: 
                 # shoot pepperoni
                 if shoot:
                     player.shoot()
@@ -287,6 +287,8 @@ while running:
                 else:
                     player.update_action(0) # index 0: idle
                 screen_scroll = player.move(moving_left, moving_right)
+                
+                
 
                 print(screen_scroll)
                 # not calling enemy.move()

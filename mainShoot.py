@@ -166,7 +166,7 @@ class Character(pygame.sprite.Sprite):
 
     def move(self, moving_left, moving_right):
         # reset movement variables
-        screen_scroll = 0
+        global screen_scroll
         dx = 0 # will need these for collision
         dy = 0
 
@@ -218,13 +218,13 @@ class Character(pygame.sprite.Sprite):
         self.rect.y += dy
 
         # update scroll based on player position
+        screen_scroll = 0
         if self.char_type == 'Peppy':
             if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
                 self.rect.x -= dx
                 screen_scroll = -dx
-        return screen_scroll
-                  
 
+        return screen_scroll
 
 
     def shoot(self):
@@ -321,7 +321,7 @@ class World():
 
 	def draw(self):
 		for tile in self.obstacle_list:
-                  tile[1][0] +- screen_scroll
+                  tile[1][0] += screen_scroll
                   screen.blit(tile[0], tile[1])
 
 
