@@ -20,7 +20,7 @@ GRAVITY = 0.75
 ROWS = 20
 COLS = 200
 TILE_SIZE = HEIGHT // ROWS
-TILE_TYPES = 27
+TILE_TYPES = 29
 SCROLL_THRESH = 400
 screen_scroll = 0
 bg_scroll = 0
@@ -46,8 +46,8 @@ for x in range(TILE_TYPES):
 
 pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 #pick up boxes
-health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
-ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
+health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
 item_boxes = {
 	'Health'	: health_box_img,
 	'Ammo'		: ammo_box_img

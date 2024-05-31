@@ -22,7 +22,7 @@ SCROLL_THRESH = 400
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 27
+TILE_TYPES = 29
 screen_scroll = 0
 bg_scroll = 0
 level = 1
@@ -44,8 +44,8 @@ for x in range(TILE_TYPES):
 
 pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 #pick up boxes
-health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
-ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
+health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
 item_boxes = {
     'Health'	: health_box_img,
     'Ammo'		: ammo_box_img
@@ -317,12 +317,12 @@ class World():
                     elif tile == 26:#create enemies
                         enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
                         enemy_group.add(enemy)
-                    # elif tile == 17:#create ammo box
-                    # 	item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
-                    # 	item_box_group.add(item_box)
-                    # elif tile == 19:#create health box
-                    # 	item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
-                    # 	item_box_group.add(item_box)
+                    elif tile == 27:#create ammo box
+                         item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
+                         item_box_group.add(item_box)
+                    elif tile == 28:#create health box
+                         item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
+                         item_box_group.add(item_box)
                     elif tile == 19:#create exit
                         exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
                         exit_group.add(exit)
@@ -375,8 +375,6 @@ class ItemBox(pygame.sprite.Sprite):
 
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
-
-    def update(self):
         #check if the player has picked up the box
         if pygame.sprite.collide_rect(self, player):
             #check what kind of box it was
