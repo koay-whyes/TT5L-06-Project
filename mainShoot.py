@@ -18,7 +18,7 @@ FPS = 60
 
 # define game variables
 GRAVITY = 0.75
-SCROLL_THRESH = 200
+SCROLL_THRESH = 400
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
@@ -220,9 +220,15 @@ class Character(pygame.sprite.Sprite):
         # update scroll based on player position
         screen_scroll = 0
         if self.char_type == 'Peppy':
-            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
+            # Check if player is near the screen edges and needs to scroll
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and dx > 0:
                 self.rect.x -= dx
                 screen_scroll = -dx
+            elif self.rect.left < SCROLL_THRESH and dx < 0:
+                self.rect.x -= dx
+                screen_scroll = -dx
+            else:
+                self.rect.x += dx
 
         return screen_scroll
 
@@ -235,7 +241,7 @@ class Character(pygame.sprite.Sprite):
             # reduce ammo
             self.ammo -= 1
     
-    def ai(self):
+    def ai(self, screen_scroll):
         if self.alive and player.alive:
             if self.idling == False and random.randint(1, 200) == 1:
                 self.update_action(0)#0: idle
@@ -267,6 +273,11 @@ class Character(pygame.sprite.Sprite):
                     self.idling_counter -= 1
                     if self.idling_counter <= 0:
                         self.idling = False
+
+        # scrolling
+        self.rect.x += screen_scroll
+
+        print(f"Enemy X position: {self.rect.x}, Screen scroll: {screen_scroll}")
     
     def check_alive(self):
         if self.health <= 0 :

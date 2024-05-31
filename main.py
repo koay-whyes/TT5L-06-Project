@@ -21,7 +21,7 @@ ROWS = 20
 COLS = 200
 TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 27
-SCROLL_THRESH = 200
+SCROLL_THRESH = 400
 screen_scroll = 0
 bg_scroll = 0
 level = 1
@@ -256,7 +256,7 @@ while running:
             player.draw()
 
             for enemy in enemy_group:
-                enemy.ai()
+                enemy.ai(screen_scroll)
                 enemy.update()
                 enemy.draw()
 
@@ -292,6 +292,7 @@ while running:
 
                 print(screen_scroll)
                 # not calling enemy.move()
+            
 
             #Pause Menu
             if pause_button.draw(screen):
