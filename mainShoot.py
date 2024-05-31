@@ -335,7 +335,6 @@ class World():
                   tile[1][0] += screen_scroll
                   screen.blit(tile[0], tile[1])
 
-
 class Decoration(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -343,6 +342,8 @@ class Decoration(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
 class Water(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -351,6 +352,8 @@ class Water(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
 class Exit(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -358,6 +361,9 @@ class Exit(pygame.sprite.Sprite):
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
 class ItemBox(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
@@ -367,6 +373,8 @@ class ItemBox(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
     def update(self):
         #check if the player has picked up the box

@@ -256,16 +256,17 @@ while running:
             player.draw()
 
             for enemy in enemy_group:
+            # takes screen scroll as value
                 enemy.ai(screen_scroll)
                 enemy.update()
                 enemy.draw()
 
             # update and draw groups
             pepperoni_group.update()
-            item_box_group.update()
-            decoration_group.update()
-            water_group.update()
-            exit_group.update()
+            item_box_group.update(screen_scroll)
+            decoration_group.update(screen_scroll)
+            water_group.update(screen_scroll)
+            exit_group.update(screen_scroll)
 
             pepperoni_group.draw(screen)
             item_box_group.draw(screen)
