@@ -420,7 +420,7 @@ class Pepperoni(pygame.sprite.Sprite):
     
     def update(self):
         # move pepperoni
-        self.rect.x += (self.direction * self.speed)
+        self.rect.x += (self.direction * self.speed) + screen_scroll
         # check if pepperoni has gone off screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()

@@ -70,8 +70,11 @@ def draw_text(text, font, text_col, x, y):
 
 def draw_bg():
     screen.fill(BG)
+    # scrolling
+    width =  bg_img.get_width()
+    for x in range(5):
     # bg_img = pygame.image.load('img/level_1.png').convert_alpha()
-    screen.blit(bg_img,(0,0) )
+        screen.blit(bg_img, ((x * width) - bg_scroll, 0))
 
 # fixed the bullet-character gap problem
 def custom_collision(character, pepperoni_group):
@@ -287,8 +290,8 @@ while running:
                     player.update_action(1) # 1: run/roll
                 else:
                     player.update_action(0) # index 0: idle
-                screen_scroll = player.move(moving_left, moving_right)
-                
+                screen_scroll = player.move(moving_left, moving_right) # follows player speed
+                bg_scroll -= screen_scroll # cumulative
                 
 
                 print(screen_scroll)
