@@ -257,9 +257,11 @@ while running:
             for x in range(player.ammo):
                 screen.blit(pepperoni_img, (125 + (x * 10), 40))
             #show cheezy
-            draw_text(f'CHEEZY:', font, WOOD_BROWN, 10, 65)
-            for x in range(player.cheezy):
-                screen.blit(cheezy_img, (100 + (x * 25), 65))
+            draw_text(f'x{player.cheezy}', font, WOOD_BROWN, 45, 70)
+            screen.blit(cheezy_img, (10, 65))
+            #for x in range(player.cheezy):
+            #     screen.blit(cheezy_img, (100 + (x * 25), 65))
+                
                 
             player.update() 
             player.draw()
