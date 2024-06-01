@@ -166,7 +166,9 @@ class Character(pygame.sprite.Sprite):
 
     def move(self, moving_left, moving_right):
         # reset movement variables
+        global bg_scroll
         global screen_scroll
+        
         dx = 0 # will need these for collision
         dy = 0
 
@@ -201,6 +203,11 @@ class Character(pygame.sprite.Sprite):
             #check collision in the x direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
+                # if the ai hit obstacles, make them turn around
+                if self.char_type == "enemy":
+                    self.direction *= -1
+                    self.move_counter = 0
+                    
             #check for collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 #check if below the ground, i.e. jumping
@@ -211,7 +218,12 @@ class Character(pygame.sprite.Sprite):
                 elif self.vel_y >= 0:
                     self.vel_y = 0
                     self.in_air = False
-                    dy = tile[1].top - self.rect.bottom        
+                    dy = tile[1].top - self.rect.bottom   
+
+        # check if going off the edge of the screen
+        if self.char_type == 'Peppy':
+            if self.rect.x + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+                dx = 0
 
         # update rectangle position
         self.rect.x += dx
@@ -220,13 +232,16 @@ class Character(pygame.sprite.Sprite):
         # update scroll based on player position
         screen_scroll = 0
         if self.char_type == 'Peppy':
+            max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
             # Check if player is near the screen edges and needs to scroll
-            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and dx > 0:
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and dx > 0 and bg_scroll < max_scroll:
                 self.rect.x -= dx
                 screen_scroll = -dx
-            elif self.rect.left < SCROLL_THRESH and dx < 0:
+                bg_scroll -= screen_scroll
+            elif self.rect.left < SCROLL_THRESH and dx < 0 and bg_scroll > abs(dx):
                 self.rect.x -= dx
                 screen_scroll = -dx
+                bg_scroll -= screen_scroll
             else:
                 self.rect.x += dx
 
@@ -292,8 +307,11 @@ class Character(pygame.sprite.Sprite):
 class World():
     def __init__(self):
         self.obstacle_list = []
+        self.level_length = 0
 
+    # world data list
     def process_data(self, data):
+        self.level_length = len(data[0]) # columns
         #iterate through each value in level data file
         for y, row in enumerate(data):
             for x, tile in enumerate(row):

@@ -292,7 +292,12 @@ while running:
                     player.update_action(0) # index 0: idle
                 screen_scroll = player.move(moving_left, moving_right) # follows player speed
                 bg_scroll -= screen_scroll # cumulative
-                
+
+                max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
+                if bg_scroll < 0:
+                    bg_scroll = 0
+                elif bg_scroll > max_scroll:
+                    bg_scroll = max_scroll
 
                 print(screen_scroll)
                 # not calling enemy.move()
