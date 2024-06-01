@@ -28,6 +28,7 @@ bg_scroll = 0
 level = 1
 
 
+
 # define player action variables
 moving_left = False
 moving_right = False 
@@ -96,6 +97,7 @@ class Character(pygame.sprite.Sprite):
         self.ammo = ammo
         self.start_ammo = ammo
         self.shoot_cooldown = 0
+        self.cheezy = 0
         self.health = 100 # self.health = health for diff health for peppy and enemy
         self.max_health = self.health # for health bar
         self.direction = 1
@@ -294,8 +296,6 @@ class Character(pygame.sprite.Sprite):
         # scrolling
         self.rect.x += screen_scroll
 
-        print(f"Enemy X position: {self.rect.x}, Screen scroll: {screen_scroll}")
-    
     def check_alive(self):
         if self.health <= 0 :
             self.health = 0
@@ -328,9 +328,9 @@ class World():
                     elif tile == 22 or tile == 23:
                          threat = Threat(img, x * TILE_SIZE, y * TILE_SIZE)
                          threat_group.add(threat)
-                    elif tile == 21:
-                         decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
-                         decoration_group.add(decoration)
+                    # elif tile == 21:
+                    #      decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
+                    #      decoration_group.add(decoration)
                     elif tile == 25:#create player
                         player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
                         health_bar = HealthBar(10, 10, player.health, player.health)
@@ -343,6 +343,9 @@ class World():
                     elif tile == 28:#create health box
                          item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
                          item_box_group.add(item_box)
+                    elif tile == 21:#create cheezy
+                          cheezy = ItemBox('Cheezy', x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(cheezy)
                     elif tile == 19:#create exit
                         exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
                         exit_group.add(exit)
@@ -404,6 +407,9 @@ class ItemBox(pygame.sprite.Sprite):
                     player.health = player.max_health
             elif self.item_type == 'Ammo':
                 player.ammo += 15
+            elif self.item_type == 'Cheezy':
+                player.cheezy += 1
+            print(player.cheezy)
             #delete the item box
             self.kill()
 

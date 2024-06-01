@@ -25,6 +25,7 @@ SCROLL_THRESH = 400
 screen_scroll = 0
 bg_scroll = 0
 level = 1
+cheezy = 0
 
 
 # define player action variables
@@ -48,6 +49,7 @@ pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 #pick up boxes
 health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
 ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
+cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
 item_boxes = {
 	'Health'	: health_box_img,
 	'Ammo'		: ammo_box_img
@@ -251,9 +253,13 @@ while running:
             #show player health
             health_bar.draw(player.health)
             #show ammo
-            draw_text('PEPPERONI: ', font, WOOD_BROWN, 10, 45)
+            draw_text('PEPPERONI: ', font, WOOD_BROWN, 10, 45) 
             for x in range(player.ammo):
                 screen.blit(pepperoni_img, (125 + (x * 10), 40))
+            #show cheezy
+            draw_text(f'CHEEZY:', font, WOOD_BROWN, 10, 65)
+            for x in range(player.cheezy):
+                screen.blit(cheezy_img, (100 + (x * 25), 65))
                 
             player.update() 
             player.draw()
@@ -299,7 +305,6 @@ while running:
                 elif bg_scroll > max_scroll:
                     bg_scroll = max_scroll
 
-                print(screen_scroll)
                 # not calling enemy.move()
             
 
