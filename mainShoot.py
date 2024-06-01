@@ -46,9 +46,11 @@ pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 #pick up boxes
 health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
 ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
+cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
 item_boxes = {
     'Health'	: health_box_img,
-    'Ammo'		: ammo_box_img
+    'Ammo'		: ammo_box_img,
+    'Cheezy'    : cheezy_img
 }
 
 # define colours
@@ -207,7 +209,7 @@ class Character(pygame.sprite.Sprite):
                 if self.char_type == "enemy":
                     self.direction *= -1
                     self.move_counter = 0
-                    
+
             #check for collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 #check if below the ground, i.e. jumping
@@ -323,9 +325,9 @@ class World():
                     tile_data = (img, img_rect)
                     if tile >= 0 and tile <= 18:
                         self.obstacle_list.append(tile_data)
-                    # elif tile >= 9 and tile <= 10:
-                    # 	water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
-                    # 	water_group.add(water)
+                    elif tile == 22 or tile == 23:
+                         threat = Threat(img, x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
                     elif tile == 21:
                          decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
                          decoration_group.add(decoration)
@@ -363,7 +365,7 @@ class Decoration(pygame.sprite.Sprite):
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
 
-class Water(pygame.sprite.Sprite):
+class Threat(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
@@ -472,7 +474,7 @@ enemy_group = pygame.sprite.Group()
 pepperoni_group = pygame.sprite.Group()
 item_box_group = pygame.sprite.Group()
 decoration_group = pygame.sprite.Group()
-water_group = pygame.sprite.Group()
+threat_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
 
 

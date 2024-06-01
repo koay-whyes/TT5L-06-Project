@@ -268,13 +268,13 @@ while running:
             pepperoni_group.update()
             item_box_group.update(screen_scroll)
             decoration_group.update(screen_scroll)
-            water_group.update(screen_scroll)
+            threat_group.update(screen_scroll)
             exit_group.update(screen_scroll)
 
             pepperoni_group.draw(screen)
             item_box_group.draw(screen)
             decoration_group.draw(screen)
-            water_group.draw(screen)
+            threat_group.draw(screen)
             exit_group.draw(screen)
 
 
