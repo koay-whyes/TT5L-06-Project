@@ -1,4 +1,4 @@
-import pygame, random, os, menubutton,csv
+import pygame, random, os, menubutton,csv,time
 from pygame import mixer
 import mainShoot as MS
 from mainShoot import *
@@ -65,8 +65,10 @@ pizza_stats0_img=pygame.image.load("img/victory/pizza_stats0.png").convert_alpha
 pizza_stats1_img=pygame.image.load("img/victory/pizza_stats1.png").convert_alpha()
 pizza_stats2_img=pygame.image.load("img/victory/pizza_stats2.png").convert_alpha()
 pizza_stats3_img=pygame.image.load("img/victory/pizza_stats3.png").convert_alpha()
-
-
+#new
+cheezy_warning_img=pygame.image.load("img/victory/cheezy_warning.png").convert_alpha()
+maximum_level_warning_img=pygame.image.load("img/victory/maximum_level_warning.png").convert_alpha()
+#till here
 #Victory Menu Button
 victory_mainmenu_button=menubutton.DrawMenu(620,350,victory_mainmenu_img,1.5)
 victory_settings_button=menubutton.DrawMenu(725,350,victory_settings_img,1.5)
@@ -81,6 +83,10 @@ stats_add_health_button=menubutton.DrawMenu(800,250,stats_add_img,2.0)
 attack_stats_button=menubutton.DrawMenu(100,230,attack_stats_img,3.0)
 defense_stats_button=menubutton.DrawMenu(400,10,defense_stats_img,4.0)
 health_stats_button=menubutton.DrawMenu(680,200,health_stats_img,4.5)
+#new
+cheezy_warning=menubutton.DrawMenu(350,150,cheezy_warning_img,4.5)
+maximum_level_warning=menubutton.DrawMenu(350,150,maximum_level_warning_img,4.5)
+#till here
 #Stats Menu images
 pizza_stats0=menubutton.DrawMenu(350,150,pizza_stats0_img,10.0)
 pizza_stats1=menubutton.DrawMenu(350,150,pizza_stats1_img,10.0)
@@ -90,20 +96,17 @@ pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
 
 victory=True
 stats=False
-cheezy=0
+#new
+cheezy=3
+#till here
 attack_level=0
 defense_level=0
 health_level=0
-
-pizza_stats_imgs = [pizza_stats0_img, pizza_stats1_img, pizza_stats2_img, pizza_stats3_img]
-
-hovered_images = []
-for level in [attack_level, defense_level, health_level]:
-    if level == 0:
-        hovered_images.append(pizza_stats0_img)
-    else:
-        hovered_images.append(pizza_stats_imgs[level])
-
+#new
+start_time = pygame.time.get_ticks()
+warning_cheezy_visible = False
+maximum_level_visible=False
+#till here
 # Game loop
 
 running = True 
@@ -132,47 +135,81 @@ while running:
         attack_stats_button.draw(screen)
         defense_stats_button.draw(screen)
         health_stats_button.draw(screen)
+
+#new
+        if stats_add_attack_button.draw(screen):
+            if attack_level==3:
+                maximum_level_visible=True
+                start_time = pygame.time.get_ticks()
+            else:
+                if cheezy>0:
+                    cheezy-=1
+                    attack_level+=1
+                    print(f"attack_level:{attack_level}")
+                    print(f"cheezy:{cheezy}")
+                else:
+                    warning_cheezy_visible=True
+                    start_time = pygame.time.get_ticks()
+        if stats_add_defense_button.draw(screen):
+            if defense_level==3:
+                maximum_level_visible=True
+                start_time = pygame.time.get_ticks()
+            else:
+                if cheezy>0:
+                    cheezy-=1
+                    defense_level+=1
+                    print(f"defense_level:{defense_level}")
+                    print(f"cheezy:{cheezy}")
+                else:
+                    warning_cheezy_visible=True
+                    start_time = pygame.time.get_ticks()
+        if stats_add_health_button.draw(screen):
+            if health_level==3:
+                maximum_level_visible=True
+                start_time = pygame.time.get_ticks()
+            else:
+                if cheezy>0:
+                    cheezy-=1
+                    health_level+=1
+                    print(f"health_level:{health_level}")
+                    print(f"cheezy:{cheezy}")
+                else:
+                    warning_cheezy_visible=True
+                    start_time = pygame.time.get_ticks()
         if stats_return_button.draw(screen):
             victory=True
             stats=False
             stats_channel.pause()
-
-        elif stats_add_attack_button.draw(screen):
-            #attack+=1
-            #cheezy-=1
-            attack_level+=1
-        if stats_add_defense_button.draw(screen):
-            #defense+=1
-            #cheezy-=1
-            defense_level+=1
-        if stats_add_health_button.draw(screen):
-            #health+=1
-            #cheezy-=1
-            health_level+=1
-    pizza_attack_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
-    if attack_level in pizza_attack_stats_dict:
-        pizza_attack_stats_dict[attack_level].draw(screen)
-    else:
-        if attack_level >= 4:
-            pizza_stats3.draw(screen)
-            print("You have reached the maximum level")
-
-    pizza_defense_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
-    if defense_level in pizza_defense_stats_dict:
-        pizza_defense_stats_dict[defense_level].draw(screen)
-    else:
-        if defense_level >= 4:
-            pizza_stats3.draw(screen)
-            print("You have reached the maximum level")
-
-    pizza_health_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
-    if health_level in pizza_health_stats_dict:
-        pizza_health_stats_dict[health_level].draw(screen)
-    else:
-        if health_level >= 4:
-            pizza_stats3.draw(screen)
-            print("You have reached the maximum level")
-
+        if warning_cheezy_visible:
+            cheezy_warning.draw(screen)
+        if maximum_level_visible:
+            maximum_level_warning.draw(screen)
+        current_time = pygame.time.get_ticks()
+        if current_time - start_time >= 2500:  # 2.5 seconds
+            warning_cheezy_visible = False
+            maximum_level_visible=False
+#till here    
+    '''
+        pizza_attack_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
+        pizza_defense_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
+        pizza_health_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}        
+        if attack_level in pizza_attack_stats_dict:
+            pizza_attack_stats_dict[attack_level].draw(screen)
+        if defense_level in pizza_defense_stats_dict:
+            pizza_defense_stats_dict[defense_level].draw(screen)
+            if defense_level >= 4:
+                pizza_stats3.draw(screen)
+                print("You have reached the maximum level")
+        if health_level in pizza_health_stats_dict:
+            pizza_health_stats_dict[health_level].draw(screen)
+            if health_level >= 4:
+                pizza_stats3.draw(screen)
+                print("You have reached the maximum level")
+        else:
+            if (attack_level or defense_level or health_level)>= 4:
+                pizza_stats3.draw(screen)
+                print("You have reached the maximum level")
+    '''
 
 
     pygame.display.update() 
