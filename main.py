@@ -187,8 +187,21 @@ sfx=True
 pause_menu=False
 warning=False
 story=False
-# Game loop
 
+#story
+story_texts = [ 
+
+    "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
+    "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
+    "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
+    "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
+    "And of course, yours!(PRESS NEXT TO START THE GAME)",
+]
+
+story_index = 0
+
+
+# Game loop
 running = True 
 while running: 
     clock.tick(FPS)
@@ -208,6 +221,10 @@ while running:
                 player.jump = True
             elif event.key == pygame.K_ESCAPE:
                 running = False 
+            elif event.key == pygame.K_RETURN:
+                story_index = (story_index + 1) % len(story_texts)
+
+
 
         # keyboard button released (KEYUP)
         elif event.type == pygame.KEYUP: 
@@ -267,11 +284,13 @@ while running:
 
     elif story==True:
         screen.fill(BLACK)
-        screen.blit(comic_panel,(350,0))
-        if next_button.draw(screen):
-            story=False
-            story_channel.pause()
-            main_channel.unpause()
+        text = font.render(story_texts[story_index], True, WHITE)
+        screen.blit(text, (40, 400))
+        if story_index == 4:
+            if next_button.draw(screen):
+                story=False
+                story_channel.pause()
+                main_channel.unpause()
     else:
         if not pause_menu:
             # update background
