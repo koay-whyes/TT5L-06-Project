@@ -21,7 +21,7 @@ pygame.display.set_caption("Level Editor")
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 33
+TILE_TYPES = 34
 current_tile = 0
 level = 0
 

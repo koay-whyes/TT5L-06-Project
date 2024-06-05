@@ -20,7 +20,7 @@ GRAVITY = 0.75
 ROWS = 20
 COLS = 200
 TILE_SIZE = HEIGHT // ROWS
-TILE_TYPES = 33
+TILE_TYPES = 34
 SCROLL_THRESH = 400
 screen_scroll = 0
 bg_scroll = 0
@@ -306,9 +306,10 @@ while running:
                     bg_scroll = 0
                 elif bg_scroll > max_scroll:
                     bg_scroll = max_scroll
+            else:
+                screen_scroll = 0
 
                 # not calling enemy.move()
-            
 
             #Pause Menu
             if pause_button.draw(screen):

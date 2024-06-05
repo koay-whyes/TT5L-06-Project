@@ -22,7 +22,7 @@ SCROLL_THRESH = 400
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 33
+TILE_TYPES = 34
 screen_scroll = 0
 bg_scroll = 0
 level = 1
@@ -53,8 +53,15 @@ cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
 mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
 mug_img = pygame.transform.scale(mug_img, (85, 85))
 pan_img = pygame.image.load('img/Interactive Elements/tiles/31.png').convert_alpha()
+pan_img = pygame.transform.scale(pan_img, (100, 100))
 towel_img = pygame.image.load('img/Interactive Elements/tiles/32.png').convert_alpha()
 towel_img = pygame.transform.scale(towel_img, (125, 125))
+sink_img = pygame.image.load('img/Interactive Elements/tiles/22.png').convert_alpha()
+sink_img = pygame.transform.scale(sink_img, (75, 75))
+oil_img = pygame.image.load('img/Interactive Elements/tiles/23.png').convert_alpha()
+sink_tile_img = pygame.image.load('img/Interactive Elements/tiles/33.png').convert_alpha()
+sink_tile_img = pygame.transform.scale(sink_tile_img, (TILE_SIZE, TILE_SIZE))
+oil_tile_img = pygame.image.load('img/Interactive Elements/tiles/24.png').convert_alpha()
 
 item_boxes = {
     'Health'	: health_box_img,
@@ -67,6 +74,13 @@ decorative_items = {
     'Mug' : mug_img,
     'Pan' : pan_img,
     'Towel' : towel_img
+}
+
+threat_items = {
+    'Sink' : sink_img,
+    'Oil' : oil_img,
+    'Sink Tile' : sink_tile_img,
+    'Oil Tile' : oil_tile_img
 }
 
 # define colours
@@ -239,6 +253,15 @@ class Character(pygame.sprite.Sprite):
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom   
 
+        # check for collision with threats
+        if pygame.sprite.spritecollide(self, threat_group, False):
+            self.health = 0
+
+        # check if player fallen off the map 
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.health = 0
+
+
         # check if going off the edge of the screen
         if self.char_type == 'Peppy':
             if self.rect.x + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
@@ -340,8 +363,17 @@ class World():
                     tile_data = (img, img_rect)
                     if tile >= 0 and tile <= 18:
                         self.obstacle_list.append(tile_data)
-                    elif tile == 22 or tile == 23:
-                         threat = Threat(img, x * TILE_SIZE, y * TILE_SIZE)
+                    elif tile == 22:
+                         threat = Threat('Sink', x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 23:
+                         threat = Threat('Oil', x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 24:
+                         threat = Threat('Oil Tile', x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 33:
+                         threat = Threat("Sink Tile", x * TILE_SIZE, y * TILE_SIZE)
                          threat_group.add(threat)
                     elif tile == 29:
                           decoration = Decoration("Cutting Board", x * TILE_SIZE, y * TILE_SIZE)
@@ -394,9 +426,10 @@ class Decoration(pygame.sprite.Sprite):
         self.rect.x += screen_scroll
 
 class Threat(pygame.sprite.Sprite):
-    def __init__(self, img, x, y):
+    def __init__(self, item_type, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(img, (75, 75))
+        self.item_type = item_type
+        self.image = threat_items[self.item_type]
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
