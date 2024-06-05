@@ -354,8 +354,9 @@ while running:
                 if level_complete == True:
                     level += 1
                     bg_scroll = 0
-                    world_data = reset_level()
-                    if level <= MAX_LEVELS:
+                    reset_level()
+                    victory = True 
+                    """if level <= MAX_LEVELS:
                         #load in level data and create world
                         with open(f'level{level}_data.csv', newline='') as csvfile:
                             reader = csv.reader(csvfile, delimiter=',')
@@ -363,7 +364,7 @@ while running:
                                 for y, tile in enumerate(row):
                                     world_data[x][y] = int(tile)
                         world = World()
-                        player, health_bar = world.process_data(world_data)
+                        player, health_bar = world.process_data(world_data)"""
 
                 max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
                 if bg_scroll < 0:
