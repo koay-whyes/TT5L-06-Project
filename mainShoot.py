@@ -49,9 +49,12 @@ health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').conv
 ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
 cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
 cutting_board_img = pygame.image.load('img/Interactive Elements/tiles/29.png').convert_alpha()
+cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
 mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
+mug_img = pygame.transform.scale(mug_img, (85, 85))
 pan_img = pygame.image.load('img/Interactive Elements/tiles/31.png').convert_alpha()
 towel_img = pygame.image.load('img/Interactive Elements/tiles/32.png').convert_alpha()
+towel_img = pygame.transform.scale(towel_img, (125, 125))
 
 item_boxes = {
     'Health'	: health_box_img,

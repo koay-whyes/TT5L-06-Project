@@ -263,8 +263,7 @@ while running:
             #     screen.blit(cheezy_img, (100 + (x * 25), 65))
                 
                 
-            player.update() 
-            player.draw()
+            
 
             for enemy in enemy_group:
             # takes screen scroll as value
@@ -285,7 +284,8 @@ while running:
             threat_group.draw(screen)
             exit_group.draw(screen)
 
-
+            player.update() 
+            player.draw()
 
             # update player actions
             if player.alive: 
