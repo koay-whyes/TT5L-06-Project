@@ -51,13 +51,13 @@ cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_
 cutting_board_img = pygame.image.load('img/Interactive Elements/tiles/29.png').convert_alpha()
 cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
 mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
-mug_img = pygame.transform.scale(mug_img, (85, 85))
+mug_img = pygame.transform.scale(mug_img, (95, 95))
 pan_img = pygame.image.load('img/Interactive Elements/tiles/31.png').convert_alpha()
 pan_img = pygame.transform.scale(pan_img, (100, 100))
 towel_img = pygame.image.load('img/Interactive Elements/tiles/32.png').convert_alpha()
 towel_img = pygame.transform.scale(towel_img, (125, 125))
 sink_img = pygame.image.load('img/Interactive Elements/tiles/22.png').convert_alpha()
-sink_img = pygame.transform.scale(sink_img, (75, 75))
+sink_img = pygame.transform.scale(sink_img, (70, 70))
 oil_img = pygame.image.load('img/Interactive Elements/tiles/23.png').convert_alpha()
 sink_tile_img = pygame.image.load('img/Interactive Elements/tiles/33.png').convert_alpha()
 sink_tile_img = pygame.transform.scale(sink_tile_img, (TILE_SIZE, TILE_SIZE))
@@ -261,6 +261,11 @@ class Character(pygame.sprite.Sprite):
         if self.rect.bottom > SCREEN_HEIGHT:
             self.health = 0
 
+        # check for collision with pizza box (exit)
+        level_complete = False
+        if pygame.sprite.spritecollide(self, exit_group, False):
+            level_complete = True
+
 
         # check if going off the edge of the screen
         if self.char_type == 'Peppy':
@@ -287,7 +292,7 @@ class Character(pygame.sprite.Sprite):
             else:
                 self.rect.x += dx
 
-        return screen_scroll
+        return screen_scroll, level_complete
 
 
     def shoot(self):

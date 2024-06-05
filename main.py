@@ -22,6 +22,7 @@ COLS = 200
 TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 34
 SCROLL_THRESH = 400
+MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
 level = 1
@@ -298,8 +299,22 @@ while running:
                     player.update_action(1) # 1: run/roll
                 else:
                     player.update_action(0) # index 0: idle
-                screen_scroll = player.move(moving_left, moving_right) # follows player speed
+                screen_scroll, level_complete = player.move(moving_left, moving_right) # follows player speed
                 bg_scroll -= screen_scroll # cumulative
+                # check if player has completed the level
+                if level_complete == True:
+                    level += 1
+                    bg_scroll = 0
+                    world_data = reset_level()
+                    if level <= MAX_LEVELS:
+                        #load in level data and create world
+                        with open(f'level{level}_data.csv', newline='') as csvfile:
+                            reader = csv.reader(csvfile, delimiter=',')
+                            for x, row in enumerate(reader):
+                                for y, tile in enumerate(row):
+                                    world_data[x][y] = int(tile)
+                        world = World()
+                        player, health_bar = world.process_data(world_data)
 
                 max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
                 if bg_scroll < 0:
