@@ -22,7 +22,7 @@ SCROLL_THRESH = 400
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 29
+TILE_TYPES = 33
 screen_scroll = 0
 bg_scroll = 0
 level = 1
@@ -48,10 +48,22 @@ pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
 ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
 cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
+cutting_board_img = pygame.image.load('img/Interactive Elements/tiles/29.png').convert_alpha()
+mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
+pan_img = pygame.image.load('img/Interactive Elements/tiles/31.png').convert_alpha()
+towel_img = pygame.image.load('img/Interactive Elements/tiles/32.png').convert_alpha()
+
 item_boxes = {
     'Health'	: health_box_img,
     'Ammo'		: ammo_box_img,
     'Cheezy'    : cheezy_img
+}
+
+decorative_items = {
+    'Cutting Board' : cutting_board_img,
+    'Mug' : mug_img,
+    'Pan' : pan_img,
+    'Towel' : towel_img
 }
 
 # define colours
@@ -328,9 +340,18 @@ class World():
                     elif tile == 22 or tile == 23:
                          threat = Threat(img, x * TILE_SIZE, y * TILE_SIZE)
                          threat_group.add(threat)
-                    # elif tile == 21:
-                    #      decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
-                    #      decoration_group.add(decoration)
+                    elif tile == 29:
+                          decoration = Decoration("Cutting Board", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 30:
+                          decoration = Decoration("Mug", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 31:
+                          decoration = Decoration("Pan", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 32:
+                          decoration = Decoration("Towel", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
                     elif tile == 25:#create player
                         player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
                         health_bar = HealthBar(10, 10, player.health, player.health)
@@ -359,9 +380,10 @@ class World():
                   screen.blit(tile[0], tile[1])
 
 class Decoration(pygame.sprite.Sprite):
-    def __init__(self, img, x, y):
+    def __init__(self, item_type, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = img
+        self.item_type = item_type
+        self.image = decorative_items[self.item_type]
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 

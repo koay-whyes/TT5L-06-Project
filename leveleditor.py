@@ -10,7 +10,7 @@ fps = 60
 # game window
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 500
-LOWER_MARGIN = 100
+LOWER_MARGIN = 200
 SIDE_MARGIN = 300
 
 # level editor screen
@@ -21,7 +21,7 @@ pygame.display.set_caption("Level Editor")
 ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 29
+TILE_TYPES = 33
 current_tile = 0
 level = 0
 
