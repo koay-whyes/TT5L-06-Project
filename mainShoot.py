@@ -91,7 +91,7 @@ class Character(pygame.sprite.Sprite):
         self.ammo = ammo
         self.start_ammo = ammo
         self.shoot_cooldown = 0
-        self.health = 100 # self.health = health for diff health for peppy and enemy
+        self.health = 10 # self.health = health for diff health for peppy and enemy
         self.max_health = self.health # for health bar
         self.direction = 1
         self.flip = False
