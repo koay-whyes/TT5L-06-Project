@@ -40,6 +40,7 @@ game_over_channel.play(pygame.mixer.Sound(GameOverMusic), loops=-1, fade_ms=10)
 moving_left = False
 moving_right = False 
 shoot = False 
+dash = False
 
 # load img
 # store tiles in a list
@@ -147,7 +148,7 @@ full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
     
 #reset level
 def reset_level():
-    global player,enemy,health_bar
+    # global player,enemy,health_bar
     enemy_group.empty()
     item_box_group.empty()
     decoration_group.empty()
@@ -180,6 +181,7 @@ def game_over():
         reset_level()
         main_channel.unpause()
         game_over_channel.pause()
+
 settings=False
 main_menu=True
 sound_on=True
@@ -234,6 +236,8 @@ while running:
                 moving_right = False 
             elif event.key == pygame.K_SPACE:
                 shoot = False 
+            elif event.key == pygame.K_j:
+                dash = False
 
     #Main Menu
     if main_menu==True:
@@ -331,13 +335,16 @@ while running:
                 # shoot pepperoni
                 if shoot:
                     player.shoot()
+                    player.update_action(4)
                 if player.in_air:
                     player.update_action(2) # 2: jump
                 elif moving_left or moving_right:
                     player.update_action(1) # 1: run/roll
+                elif dash:
+                    player.update_action(1) # can change to other animation 
                 else:
                     player.update_action(0) # index 0: idle
-                player.move(moving_left, moving_right)
+                player.move(moving_left, moving_right, dash)
                 # not calling enemy.move()
 
         #Pause Menu
