@@ -23,7 +23,9 @@ COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 21
 level = 1
-
+attack_level=0
+defense_level=0
+health_level=0
 
 # define player action variables
 moving_left = False
@@ -400,8 +402,17 @@ class Pepperoni(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
-                player.health -= 5
-                self.kill() # delete bullet 
+                if defense_level==0:
+                    player.health -= 15
+                    self.kill() # delete bullet 
+                elif defense_level==1:
+                    player.health -= 12
+                    self.kill() # delete bullet
+                elif defense_level==2:
+                    player.health -= 9
+                    self.kill() # delete bullet
+                elif defense_level==3:
+                    player.health-=6
        
         
         for enemy in enemy_group:

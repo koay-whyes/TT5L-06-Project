@@ -145,11 +145,11 @@ while running:
                 if cheezy>0:
                     cheezy-=1
                     attack_level+=1
-                    #for enemy in enemy_group:
-                        #enemy.health-=1
+                    for enemy in enemy_group:
+                        enemy.health-=1
                     print(f"attack_level:{attack_level}")
                     print(f"cheezy:{cheezy}")
-                    #print(f"enemy health:{enemy.health}")
+                    print(f"enemy health:{enemy.health}")
                 else:
                     warning_cheezy_visible=True
                     start_time = pygame.time.get_ticks()
@@ -161,10 +161,8 @@ while running:
                 if cheezy>0:
                     cheezy-=1
                     defense_level+=1
-                    #player.health-=3
                     print(f"defense_level:{defense_level}")
                     print(f"cheezy:{cheezy}")
-                    #print(f"player health:{player.health}")
                 else:
                     warning_cheezy_visible=True
                     start_time = pygame.time.get_ticks()
@@ -176,8 +174,10 @@ while running:
                 if cheezy>0:
                     cheezy-=1
                     health_level+=1
+                    player.health+=15
                     print(f"health_level:{health_level}")
                     print(f"cheezy:{cheezy}")
+                    print(f"player health:{player.health}")
                 else:
                     warning_cheezy_visible=True
                     start_time = pygame.time.get_ticks()
