@@ -2,6 +2,7 @@ import pygame
 import os
 import random
 import csv
+import time
 
 pygame.init()
 
@@ -109,9 +110,17 @@ class Character(pygame.sprite.Sprite):
         self.vision = pygame.Rect(0, 0, 150, 20)
         self.idling = False
         self.idling_counter = 0
+        # dash
+        self.dash_distance = 30
+        # self.dash_small_cooldown = 5
+        self.dash_duration = 0.3  # Dash duration in seconds
+        self.dash_cooldown = 1  # Cooldown between dashes in seconds
+        self.last_dash = 0
+        self.dash_start_time = 0
+        self.base_speed = self.speed 
         
         # load all images for the players
-        animation_types = ['Idle', 'Roll', 'Jump', 'Dead']
+        animation_types = ['Idle', 'Roll', 'Jump', 'Dead', 'Attack']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -141,7 +150,7 @@ class Character(pygame.sprite.Sprite):
 
         # if the animation has run out then reset back to the start
         if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
+            if self.action == 3 or self.action == 4:
                 self.frame_index = len(self.animation_list[self.action]) -1
             else:
                 self.frame_index = 0 
@@ -163,7 +172,7 @@ class Character(pygame.sprite.Sprite):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-    def move(self, moving_left, moving_right):
+    def move(self, moving_left, moving_right, dash):
         # reset movement variables
         dx = 0 # will need these for collision
         dy = 0
@@ -177,7 +186,33 @@ class Character(pygame.sprite.Sprite):
             dx = self.speed 
             self.flip = False
             self.direction = 1
-
+        
+        # Dash logic
+        """if dash and time.time() - self.last_dash > self.dash_cooldown:
+            if moving_left:
+                dx -= self.dash_distance
+                self.last_dash = time.time()
+                dash = True
+            if moving_right:
+                dx += self.dash_distance
+               
+            self.last_dash = time.time()"""
+        
+        if dash and time.time() - self.last_dash > self.dash_cooldown:
+            self.dash_start_time = time.time()
+            self.speed = self.base_speed * 5
+            
+            """if moving_left:
+                dx = -self.speed     
+            if moving_right:
+                dx = self.speed """
+            
+            self.last_dash = time.time()
+        
+        if time.time() - self.dash_start_time > self.dash_duration:
+            self.dash = False 
+            self.speed = self.base_speed
+            
         # jump 
         if self.jump == True and self.in_air == False:
             self.vel_y =-11
@@ -242,7 +277,7 @@ class Character(pygame.sprite.Sprite):
                     else:
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
-                    self.move(ai_moving_left, ai_moving_right)
+                    self.move(ai_moving_left, ai_moving_right, False)
                     self.update_action(1)#1: run
                     self.move_counter += 1
                     #update ai vision as the enemy moves
@@ -402,17 +437,8 @@ class Pepperoni(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
-                if defense_level==0:
-                    player.health -= 15
+                    player.health -=5
                     self.kill() # delete bullet 
-                elif defense_level==1:
-                    player.health -= 12
-                    self.kill() # delete bullet
-                elif defense_level==2:
-                    player.health -= 9
-                    self.kill() # delete bullet
-                elif defense_level==3:
-                    player.health-=6
        
         
         for enemy in enemy_group:
