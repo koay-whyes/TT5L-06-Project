@@ -4,6 +4,27 @@ from mainShoot import *
 import mainShoot as MS
 pygame.init() 
 
+WIDTH = 1000
+HEIGHT = 500
+ 
+# define colors *might split into another file afterwards
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+BG = (252,244,163)
+WOOD_BROWN = (193, 154, 107) 
+
+# initialize pygame and create window
+
+pygame.mixer.init() 
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Peppy the Pizza") # display on top of the window
+
+# set framerate
+clock = pygame.time.Clock() 
+FPS = 60 
 # define game variables
 cheezy = 0
 
@@ -186,6 +207,26 @@ warning=False
 story=False
 victory=False
 stats=False
+
+#story
+story_texts = [ 
+
+    "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
+    "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
+    "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
+    "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
+    "And of course, yours!(PRESS NEXT TO START THE GAME)",
+]
+
+story_index = 0
+
+
+sfx=True
+pause_menu=False
+warning=False
+story=False
+victory=False
+stats=False
 # Game loop
 
 running = True 
@@ -207,6 +248,10 @@ while running:
                 player.jump = True
             elif event.key == pygame.K_ESCAPE:
                 running = False 
+            elif event.key == pygame.K_RETURN:
+                story_index = (story_index + 1) % len(story_texts)
+
+
             # dash
             if event.key == pygame.K_j and not pause_menu:
                 dash = True 
@@ -271,11 +316,13 @@ while running:
 
     elif story==True:
         screen.fill(BLACK)
-        screen.blit(comic_panel,(350,0))
-        if next_button.draw(screen):
-            story=False
-            story_channel.pause()
-            main_channel.unpause()
+        text = font.render(story_texts[story_index], True, WHITE)
+        screen.blit(text, (40, 400))
+        if story_index == 4:
+            if next_button.draw(screen):
+                story=False
+                story_channel.pause()
+                main_channel.unpause()
 
     #Victory Menu
     elif victory:
