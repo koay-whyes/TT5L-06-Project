@@ -380,7 +380,7 @@ class World():
         self.level_length = 0
 
     # world data list
-    def process_data(self, data):
+    def process_data(self, data, level):
         self.level_length = len(data[0]) # columns
         #iterate through each value in level data file
         for y, row in enumerate(data):
@@ -421,8 +421,12 @@ class World():
                         player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
                         health_bar = HealthBar(10, 10, player.health, player.health)
                     elif tile == 26:#create enemies
-                        enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
-                        enemy_group.add(enemy)
+                        if level == 1:
+                            enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                            enemy_group.add(enemy)
+                        elif level == 2:
+                            enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                            enemy_group.add(enemy)
                     elif tile == 27:#create ammo box
                          item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
                          item_box_group.add(item_box)
@@ -598,4 +602,4 @@ with open(f'level{level}_data.csv', newline='') as csvfile:
         for y, tile in enumerate(row):
             world_data[x][y] = int(tile)
 world = World()
-player, health_bar = world.process_data(world_data)
+player, health_bar = world.process_data(world_data, level)
