@@ -1,5 +1,7 @@
 import pygame, random, os, menubutton,csv
 from pygame import mixer
+from mainShoot import *
+import mainShoot as MS
 pygame.init() 
 
 WIDTH = 1000
@@ -27,6 +29,7 @@ level = 1
 moving_left = False
 moving_right = False 
 shoot = False 
+dash = False
 
 
 # define colours
@@ -94,7 +97,19 @@ next_button=menubutton.DrawMenu(850,150,next_img,1.5)
 
 #reset level
 def reset_level():
-    pass
+    enemy_group.empty()
+    item_box_group.empty()
+    decoration_group.empty()
+    threat_group.empty()
+    exit_group.empty()
+    pepperoni_group.empty()
+
+    #create empty tile list
+    world_data = []
+    for row in range(ROWS):
+        r = [-1] * COLS
+        world_data.append(r)
+
 settings=False
 main_menu=True
 sound_on=True
@@ -119,6 +134,21 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # keyboard presses (KEYDOWN)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a and not pause_menu:
+                moving_left = True
+            elif event.key == pygame.K_d and not pause_menu:
+                moving_right = True
+            elif event.key == pygame.K_SPACE and not pause_menu:
+                shoot = True
+            elif event.key == pygame.K_w and player.alive and not pause_menu:
+                player.jump = True
+            elif event.key == pygame.K_ESCAPE:
+                running = False 
+            # dash
+            if event.key == pygame.K_j and not pause_menu:
+                dash = True 
  
 
     #Main Menu
@@ -173,6 +203,56 @@ while running:
             story_channel.pause()
             main_channel.unpause()
     else:
+        if not pause_menu:
+
+            #show player health
+            health_bar.draw(player.health)
+            #show ammo
+            draw_text('PEPPERONI: ', font, WOOD_BROWN, 10, 45)
+            for x in range(player.ammo):
+                screen.blit(pepperoni_img, (125 + (x * 10), 40))
+            #show cheezy
+            draw_text(f'x{player.cheezy}', font, WOOD_BROWN, 45, 70)
+
+
+
+            for enemy in enemy_group:
+                # takes screen scroll as value
+                enemy.ai()
+                enemy.update()
+                enemy.draw()
+
+            # update and draw groups
+            pepperoni_group.update()
+            item_box_group.update()
+            decoration_group.update()
+            threat_group.update()
+            exit_group.update()
+
+            pepperoni_group.draw(screen)
+            item_box_group.draw(screen)
+            decoration_group.draw(screen)
+            threat_group.draw(screen)
+            exit_group.draw(screen)
+
+            player.update() 
+            player.draw()
+
+
+            # update player actions
+            if player.alive:
+                # shoot pepperoni
+                if shoot:
+                    player.shoot()
+                    player.update_action(4)
+                if player.in_air:
+                    player.update_action(2) # 2: jump
+                elif moving_left or moving_right:
+                    player.update_action(1) # 1: run/roll
+                elif dash:
+                    player.update_action(1) # can change to other animation 
+                else:
+                    player.update_action(0) # index 0: idle
 
             #Pause Menu
             if pause_button.draw(screen):
