@@ -3,6 +3,7 @@ import os
 import random
 import csv
 import time
+import time
 
 pygame.init()
 
@@ -28,7 +29,9 @@ MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
 level = 1
-
+attack_level=0
+defense_level=0
+health_level=0
 
 # define player action variables
 moving_left = False
@@ -115,6 +118,7 @@ class Character(pygame.sprite.Sprite):
         
         # load all images for the players
         animation_types = ['Idle', 'Roll', 'Jump', 'Dead', 'Attack']
+        animation_types = ['Idle', 'Roll', 'Jump', 'Dead', 'Attack']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -189,16 +193,18 @@ class Character(pygame.sprite.Sprite):
                 self.last_dash = time.time()
                 dash = True
             if moving_right:
-                dx += self.dash_distance"""
+                dx += self.dash_distance
+               
+            self.last_dash = time.time()"""
         
         if dash and time.time() - self.last_dash > self.dash_cooldown:
             self.dash_start_time = time.time()
             self.speed = self.base_speed * 5
             
             """if moving_left:
-                dx -= self.speed
+                dx = -self.speed     
             if moving_right:
-                dx += self.speed"""
+                dx = self.speed """
             
             self.last_dash = time.time()
         
@@ -287,6 +293,7 @@ class Character(pygame.sprite.Sprite):
                     else:
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
+                    self.move(ai_moving_left, ai_moving_right, False)
                     self.move(ai_moving_left, ai_moving_right, False)
                     self.update_action(1)#1: run
                     self.move_counter += 1
@@ -416,8 +423,8 @@ class Pepperoni(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
-                player.health -= 5
-                self.kill() # delete bullet 
+                    player.health -=5
+                    self.kill() # delete bullet 
        
         
         for enemy in enemy_group:

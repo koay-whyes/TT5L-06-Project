@@ -24,6 +24,18 @@ TILE_SIZE = HEIGHT // ROWS
 TILE_TYPES = 21
 level = 1
 
+#music
+MainMusic = pygame.mixer.Sound("bgm.mp3") 
+StoryMusic = pygame.mixer.Sound("sad_bgm.mp3")
+GameOverMusic = pygame.mixer.Sound("game_over_bgm.mp3")
+
+main_channel = pygame.mixer.Channel(1)
+story_channel = pygame.mixer.Channel(2)
+game_over_channel = pygame.mixer.Channel(3)
+
+main_channel.play(pygame.mixer.Sound(MainMusic), loops=-1, fade_ms=1000)
+story_channel.play(pygame.mixer.Sound(StoryMusic), loops=-1, fade_ms=1000)
+game_over_channel.play(pygame.mixer.Sound(GameOverMusic), loops=-1, fade_ms=10)
 
 # define player action variables
 moving_left = False
@@ -31,6 +43,23 @@ moving_right = False
 shoot = False 
 dash = False
 
+# load img
+# store tiles in a list
+img_list = []
+for x in range(TILE_TYPES):
+	img = pygame.image.load(f'img/Tile/{x}.png')
+	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+	img_list.append(img)
+# Pepperoni (bullet)
+
+pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
+#pick up boxes
+health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
+item_boxes = {
+	'Health'	: health_box_img,
+	'Ammo'		: ammo_box_img
+}
 
 # define colours
 BG = (252,244,163)
@@ -57,6 +86,7 @@ sfx_img = pygame.image.load("img/sfx_button.png").convert_alpha()
 NoSfx_img = pygame.image.load("img/NoSfx_button.png").convert_alpha()
 sfx_text_img = pygame.image.load("img/sfx_text.png").convert_alpha()
 music_img = pygame.image.load("img/music_text.png").convert_alpha()
+full_scren_img = pygame.image.load("img/full_screen.png").convert_alpha()
 
 #Game img
 comic_panel  = pygame.image.load("img/comic_panel.jpeg")
@@ -93,10 +123,11 @@ resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
 tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
 next_button=menubutton.DrawMenu(850,150,next_img,1.5)
-
-
+full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
+    
 #reset level
 def reset_level():
+    # global player,enemy,health_bar
     enemy_group.empty()
     item_box_group.empty()
     decoration_group.empty()
@@ -109,6 +140,26 @@ def reset_level():
     for row in range(ROWS):
         r = [-1] * COLS
         world_data.append(r)
+    #load in level data and create world
+    with open(f'level{level}_data.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for x, row in enumerate(reader):
+            for y, tile in enumerate(row):
+                world_data[x][y] = int(tile)
+    world = World()
+    player, health_bar = world.process_data(world_data)
+
+def game_over():
+    game_over_background_img=pygame.image.load("img/game_over_bg.png")
+    game_over_restart_img=pygame.image.load("img/game_over_restart.png").convert_alpha()
+    game_over_restart_button = menubutton.DrawMenu(440,360,game_over_restart_img,2.5)
+    screen.blit(game_over_background_img,(0,0))
+    main_channel.pause()
+    game_over_channel.unpause()
+    if game_over_restart_button.draw(screen):
+        reset_level()
+        main_channel.unpause()
+        game_over_channel.pause()
 
 settings=False
 main_menu=True
@@ -117,16 +168,21 @@ sfx=True
 pause_menu=False
 warning=False
 story=False
+
+#story
+story_texts = [ 
+
+    "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
+    "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
+    "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
+    "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
+    "And of course, yours!(PRESS NEXT TO START THE GAME)",
+]
+
+story_index = 0
+
+
 # Game loop
-MainMusic = pygame.mixer.Sound("bgm.mp3") 
-StoryMusic = pygame.mixer.Sound("sad_bgm.mp3")
-
-main_channel = pygame.mixer.Channel(1)
-story_channel = pygame.mixer.Channel(2)
-
-main_channel.play(pygame.mixer.Sound(MainMusic), loops=-1, fade_ms=1000)
-story_channel.play(pygame.mixer.Sound(StoryMusic), loops=-1, fade_ms=1000)
-
 running = True 
 while running: 
     clock.tick(FPS)
@@ -135,7 +191,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         # keyboard presses (KEYDOWN)
-        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a and not pause_menu:
                 moving_left = True
             elif event.key == pygame.K_d and not pause_menu:
@@ -146,16 +201,28 @@ while running:
                 player.jump = True
             elif event.key == pygame.K_ESCAPE:
                 running = False 
-            # dash
-            if event.key == pygame.K_j and not pause_menu:
-                dash = True 
- 
+            elif event.key == pygame.K_RETURN:
+                story_index = (story_index + 1) % len(story_texts)
+
+
+
+        # keyboard button released (KEYUP)
+        elif event.type == pygame.KEYUP: 
+            if event.key == pygame.K_a :
+                moving_left = False 
+            elif event.key == pygame.K_d:
+                moving_right = False 
+            elif event.key == pygame.K_SPACE:
+                shoot = False 
+            elif event.key == pygame.K_j:
+                dash = False
 
     #Main Menu
     if main_menu==True:
         screen.blit(menu_background_img, (0,0))
         title.draw(screen)
         story_channel.pause()
+        game_over_channel.pause()
         if exit_button.draw(screen):
             running=False
         if settings_button.draw(screen):
@@ -194,28 +261,33 @@ while running:
                 else:
                     sfx_button.update_image(NoSfx_img,4.5)
                     pygame.mixer.Channel(0).set_volume(0)
+        if full_screen_button.draw(screen):
+            screen=pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
     elif story==True:
         screen.fill(BLACK)
-        screen.blit(comic_panel,(350,0))
-        if next_button.draw(screen):
-            story=False
-            story_channel.pause()
-            main_channel.unpause()
+        text = font.render(story_texts[story_index], True, WHITE)
+        screen.blit(text, (40, 400))
+        if story_index == 4:
+            if next_button.draw(screen):
+                story=False
+                story_channel.pause()
+                main_channel.unpause()
     else:
         if not pause_menu:
-
+            # update background
+            draw_bg()
+            #draw world map
+            world.draw()
             #show player health
             health_bar.draw(player.health)
             #show ammo
             draw_text('PEPPERONI: ', font, WOOD_BROWN, 10, 45)
             for x in range(player.ammo):
                 screen.blit(pepperoni_img, (125 + (x * 10), 40))
-            #show cheezy
-            draw_text(f'x{player.cheezy}', font, WOOD_BROWN, 45, 70)
-
-
-
+                
+            player.update() 
+            player.draw()
             for enemy in enemy_group:
                 # takes screen scroll as value
                 enemy.ai()
@@ -245,40 +317,47 @@ while running:
                 if shoot:
                     player.shoot()
                     player.update_action(4)
+                    player.update_action(4)
                 if player.in_air:
                     player.update_action(2) # 2: jump
                 elif moving_left or moving_right:
                     player.update_action(1) # 1: run/roll
                 elif dash:
                     player.update_action(1) # can change to other animation 
+                elif dash:
+                    player.update_action(1) # can change to other animation 
                 else:
                     player.update_action(0) # index 0: idle
+                player.move(moving_left, moving_right, dash)
+                # not calling enemy.move()
 
-            #Pause Menu
-            if pause_button.draw(screen):
-                pause_menu = True
-            if pause_menu==True:
-                screen.fill(WOOD_BROWN)
-                #Continue
-                if resume_button.draw(screen):
+        #Pause Menu
+        if pause_button.draw(screen):
+            pause_menu = True
+        if pause_menu==True:
+            screen.fill(WOOD_BROWN)
+            #Continue
+            if resume_button.draw(screen):
+                pause_menu=False
+            #Restart Level
+            if restart_button.draw(screen):
+                pause_menu=False
+                reset_level()
+            if menu_button.draw(screen):
+                warning=True
+            if warning == True: 
+                screen.blit(warning_scaled_img, (370,90))
+                if tick_button.draw(screen):
+                    main_menu=True
                     pause_menu=False
-                #Restart Level
-                if restart_button.draw(screen):
-                    pause_menu=False
+                    settings=False
+                    warning=False
                     reset_level()
-                if menu_button.draw(screen):
-                    warning=True
-                if warning == True: 
-                    screen.blit(warning_scaled_img, (370,90))
-                    if tick_button.draw(screen):
-                        main_menu=True
-                        pause_menu=False
-                        settings=False
-                        warning=False
-                        reset_level()
-                    elif x_button.draw(screen):
-                        pause_menu=True
-                        warning=False
+                elif x_button.draw(screen):
+                    pause_menu=True
+                    warning=False
+        if player.alive==False:
+            game_over()
 
     pygame.display.update() 
 
