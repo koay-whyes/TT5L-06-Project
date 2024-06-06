@@ -27,6 +27,9 @@ clock = pygame.time.Clock()
 FPS = 60 
 # define game variables
 cheezy = 0
+screen_scroll = 0
+bg_scroll = 0
+level = 1
 
 #music
 MainMusic = pygame.mixer.Sound("bgm.mp3") 
@@ -56,12 +59,17 @@ shoot = False
 dash = False
 
 # load img
-bg_img = pygame.image.load('img/level_1.png').convert_alpha()
+bg_imgs = {
+    1: pygame.image.load("img/level_1.png").convert_alpha(),
+    2: pygame.image.load("img/level_2.png").convert_alpha(),
+    3: pygame.image.load("img/level_1.png").convert_alpha()
+}
 
 
 def draw_bg():
     screen.fill(BG)
     # scrolling
+    bg_img = bg_imgs.get(level % len(bg_imgs), bg_imgs[1])
     width =  bg_img.get_width()
     for x in range(5):
     # bg_img = pygame.image.load('img/level_1.png').convert_alpha()
