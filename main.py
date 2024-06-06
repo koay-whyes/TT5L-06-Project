@@ -1,6 +1,7 @@
 import pygame, random, os, menubutton,csv
 from pygame import mixer
 from mainShoot import *
+import mainShoot as MS
 pygame.init() 
 
 WIDTH = 1000
@@ -68,29 +69,7 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 	
-#define font
-font = pygame.font.SysFont('Futura', 30)
 
-def draw_text(text, font, text_col, x, y):
-    img = font.render(text, True, text_col)
-    screen.blit(img, (x, y))
-
-def draw_bg():
-    screen.fill(BG)
-    """    bg_img = pygame.image.load('img/level_1.png').convert_alpha()
-    screen.blit(bg_img,(1000,500) )"""
-
-# fixed the bullet-character gap problem
-def custom_collision(character, pepperoni_group):
-    # Calculate the centers
-    pepperoni_center = pepperoni_group.rect.center
-    character_center = character.rect.center
-        
-    # Define a distance threshold, e.g., 10 pixels towards the center
-    distance_threshold = 10
-        
-    # Check if the bullet is within the threshold distance to the character's center
-    return pygame.math.Vector2(pepperoni_center).distance_to(character_center) <= distance_threshold
 
 #Main Menu images
 title_img = pygame.image.load("img/title.png").convert_alpha()
@@ -152,7 +131,7 @@ def reset_level():
     enemy_group.empty()
     item_box_group.empty()
     decoration_group.empty()
-    water_group.empty()
+    threat_group.empty()
     exit_group.empty()
     pepperoni_group.empty()
 
@@ -212,7 +191,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         # keyboard presses (KEYDOWN)
-        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a and not pause_menu:
                 moving_left = True
             elif event.key == pygame.K_d and not pause_menu:
@@ -311,6 +289,7 @@ while running:
             player.update() 
             player.draw()
             for enemy in enemy_group:
+                # takes screen scroll as value
                 enemy.ai()
                 enemy.update()
                 enemy.draw()
@@ -319,15 +298,17 @@ while running:
             pepperoni_group.update()
             item_box_group.update()
             decoration_group.update()
-            water_group.update()
+            threat_group.update()
             exit_group.update()
 
             pepperoni_group.draw(screen)
             item_box_group.draw(screen)
             decoration_group.draw(screen)
-            water_group.draw(screen)
+            threat_group.draw(screen)
             exit_group.draw(screen)
 
+            player.update() 
+            player.draw()
 
 
             # update player actions
@@ -336,10 +317,13 @@ while running:
                 if shoot:
                     player.shoot()
                     player.update_action(4)
+                    player.update_action(4)
                 if player.in_air:
                     player.update_action(2) # 2: jump
                 elif moving_left or moving_right:
                     player.update_action(1) # 1: run/roll
+                elif dash:
+                    player.update_action(1) # can change to other animation 
                 elif dash:
                     player.update_action(1) # can change to other animation 
                 else:
