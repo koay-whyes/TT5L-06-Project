@@ -1,6 +1,5 @@
 import pygame, random, os, menubutton,csv
 from pygame import mixer
-from mainShoot import *
 pygame.init() 
 
 WIDTH = 1000
@@ -29,23 +28,6 @@ moving_left = False
 moving_right = False 
 shoot = False 
 
-# load img
-# store tiles in a list
-img_list = []
-for x in range(TILE_TYPES):
-	img = pygame.image.load(f'img/Tile/{x}.png')
-	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
-	img_list.append(img)
-# Pepperoni (bullet)
-
-pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
-#pick up boxes
-health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
-ammo_box_img = pygame.image.load('img/icons/ammo_box.png').convert_alpha()
-item_boxes = {
-	'Health'	: health_box_img,
-	'Ammo'		: ammo_box_img
-}
 
 # define colours
 BG = (252,244,163)
@@ -55,29 +37,7 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 	
-#define font
-font = pygame.font.SysFont('Futura', 30)
 
-def draw_text(text, font, text_col, x, y):
-    img = font.render(text, True, text_col)
-    screen.blit(img, (x, y))
-
-def draw_bg():
-    screen.fill(BG)
-    """    bg_img = pygame.image.load('img/level_1.png').convert_alpha()
-    screen.blit(bg_img,(1000,500) )"""
-
-# fixed the bullet-character gap problem
-def custom_collision(character, pepperoni_group):
-    # Calculate the centers
-    pepperoni_center = pepperoni_group.rect.center
-    character_center = character.rect.center
-        
-    # Define a distance threshold, e.g., 10 pixels towards the center
-    distance_threshold = 10
-        
-    # Check if the bullet is within the threshold distance to the character's center
-    return pygame.math.Vector2(pepperoni_center).distance_to(character_center) <= distance_threshold
 
 #Main Menu images
 title_img = pygame.image.load("img/title.png").convert_alpha()
@@ -134,28 +94,7 @@ next_button=menubutton.DrawMenu(850,150,next_img,1.5)
 
 #reset level
 def reset_level():
-    global player,enemy,health_bar
-    enemy_group.empty()
-    item_box_group.empty()
-    decoration_group.empty()
-    water_group.empty()
-    exit_group.empty()
-    pepperoni_group.empty()
-
-    #create empty tile list
-    world_data = []
-    for row in range(ROWS):
-        r = [-1] * COLS
-        world_data.append(r)
-    #load in level data and create world
-    with open(f'level{level}_data.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for x, row in enumerate(reader):
-            for y, tile in enumerate(row):
-                world_data[x][y] = int(tile)
-    world = World()
-    player, health_bar = world.process_data(world_data)
-
+    pass
 settings=False
 main_menu=True
 sound_on=True
@@ -180,27 +119,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # keyboard presses (KEYDOWN)
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                moving_left = True
-            elif event.key == pygame.K_d:
-                moving_right = True
-            elif event.key == pygame.K_SPACE:
-                shoot = True
-            elif event.key == pygame.K_w and player.alive:
-                player.jump = True
-            elif event.key == pygame.K_ESCAPE:
-                running = False 
-
-        # keyboard button released (KEYUP)
-        elif event.type == pygame.KEYUP: 
-            if event.key == pygame.K_a :
-                moving_left = False 
-            elif event.key == pygame.K_d:
-                moving_right = False 
-            elif event.key == pygame.K_SPACE:
-                shoot = False 
+ 
 
     #Main Menu
     if main_menu==True:
@@ -254,53 +173,6 @@ while running:
             story_channel.pause()
             main_channel.unpause()
     else:
-            # update background
-            draw_bg()
-            #draw world map
-            world.draw()
-            #show player health
-            health_bar.draw(player.health)
-            #show ammo
-            draw_text('PEPPERONI: ', font, WOOD_BROWN, 10, 45)
-            for x in range(player.ammo):
-                screen.blit(pepperoni_img, (125 + (x * 10), 40))
-                
-            player.update() 
-            player.draw()
-
-            for enemy in enemy_group:
-                enemy.ai()
-                enemy.update()
-                enemy.draw()
-
-            # update and draw groups
-            pepperoni_group.update()
-            item_box_group.update()
-            decoration_group.update()
-            water_group.update()
-            exit_group.update()
-
-            pepperoni_group.draw(screen)
-            item_box_group.draw(screen)
-            decoration_group.draw(screen)
-            water_group.draw(screen)
-            exit_group.draw(screen)
-
-
-
-            # update player actions
-            if player.alive:
-                # shoot pepperoni
-                if shoot:
-                    player.shoot()
-                if player.in_air:
-                    player.update_action(2) # 2: jump
-                elif moving_left or moving_right:
-                    player.update_action(1) # 1: run/roll
-                else:
-                    player.update_action(0) # index 0: idle
-                player.move(moving_left, moving_right)
-                # not calling enemy.move()
 
             #Pause Menu
             if pause_button.draw(screen):
