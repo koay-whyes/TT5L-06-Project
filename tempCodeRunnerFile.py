@@ -1,1 +1,0 @@
-world.process_data
