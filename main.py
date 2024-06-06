@@ -207,8 +207,8 @@ def reset_level():
             for y, tile in enumerate(row):
                 world_data[x][y] = int(tile)
     world = World()
-    player, health_bar = world.process_data(world_data)
-    MS.screen_scroll = 0
+    player, health_bar = world.process_data(world_data, level)
+    screen_scroll = 0
     MS.player.rect.center = (100,100)
 
 
@@ -374,6 +374,7 @@ while running:
         if victory_next_button.draw(screen):
             level_complete=True
             victory=False
+            main_channel.unpause()
             victory_channel.pause()
         if stats_button.draw(screen):
             stats=True
@@ -530,7 +531,8 @@ while running:
                     bg_scroll = 0
                     reset_level()
                     victory = True 
-                    if level <= MAX_LEVELS:
+                    # if level <= MAX_LEVELS:
+                    if level == 2:
                         #load in level data and create world
                         with open(f'level{level}_data.csv', newline='') as csvfile:
                             reader = csv.reader(csvfile, delimiter=',')
@@ -538,7 +540,7 @@ while running:
                                 for y, tile in enumerate(row):
                                     world_data[x][y] = int(tile)
                         world = World()
-                        player, health_bar = world.process_data(world_data)
+                        player, health_bar = world.process_data(world_data, level)
 
                 max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
                 if bg_scroll < 0:
