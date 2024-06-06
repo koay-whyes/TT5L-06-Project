@@ -10,8 +10,8 @@ fps = 60
 # game window
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 500
-LOWER_MARGIN = 100
-SIDE_MARGIN = 300
+LOWER_MARGIN = 200
+SIDE_MARGIN = 400
 
 # level editor screen
 screen = pygame.display.set_mode((SCREEN_WIDTH + SIDE_MARGIN, SCREEN_HEIGHT + LOWER_MARGIN))
@@ -19,28 +19,31 @@ pygame.display.set_caption("Level Editor")
 
 # game variables
 ROWS = 20
-COLS = 125
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 4
+TILE_TYPES = 36
 current_tile = 0
 level = 0
-
+COLS = 200
 scroll_left = False
 scroll_right = False
 scroll = 0
 scroll_speed = 1
 
 # load images
-background_img = pygame.image.load("resources/background_2.jpg").convert_alpha()
+background_images = {
+    1: pygame.image.load("img/level_1.png").convert_alpha(),
+    2: pygame.image.load("img/level_2.png").convert_alpha(),
+    3: pygame.image.load("img/level_1.png").convert_alpha()
+}
 # store images in a list
 img_list = []
 for x in range(TILE_TYPES):
-    img = pygame.image.load(f'resources/tiles/{x}.png').convert_alpha()
+    img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png').convert_alpha()
     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
     img_list.append(img)
 
-save_img = pygame.image.load('resources/button_1.png').convert_alpha()
-load_img = pygame.image.load('resources/button_2.png').convert_alpha()
+save_img = pygame.image.load('img/button_1.png').convert_alpha()
+load_img = pygame.image.load('img/button_2.png').convert_alpha()
 
 
 
@@ -76,9 +79,10 @@ def draw_text(text, font, text_col, x, y):
 # drawing background
 def draw_background():
     screen.fill(YELLOW)
+    background_img = background_images.get(level % len(background_images), background_images[1])
     width = background_img.get_width()
     # loop background image
-    for x in range(4):
+    for x in range(5):
         # background needs to move left while scrolling right and vice versa
         # a value times with scroll to change scrolling speed
         screen.blit(background_img, ((x * width) -scroll, 0))
@@ -109,15 +113,16 @@ save_button = menubutton.DrawMenu(SCREEN_WIDTH // 2, SCREEN_HEIGHT + LOWER_MARGI
 load_button = menubutton.DrawMenu(SCREEN_WIDTH // 2 + 200, SCREEN_HEIGHT + LOWER_MARGIN - 50, load_img, 1)
 
 # create button list
+# tiles in the margin
 button_list = []
 button_col = 0
 button_row = 0
 for i in range(len(img_list)):
     # from menubutton file
-    tile_button = menubutton.DrawMenu(SCREEN_WIDTH + (75 * button_col) + 50, (75 * button_row) + 50, img_list[i], 1)
+    tile_button = menubutton.DrawMenu(SCREEN_WIDTH + (75 * button_col) + 25, (75 * button_row) + 50, img_list[i], 1)
     button_list.append(tile_button)
     button_col += 1
-    if button_col == 3:
+    if button_col == 5:
         button_row += 1
         button_col = 0
 

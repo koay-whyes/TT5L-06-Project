@@ -3,7 +3,6 @@ import os
 import random
 import csv
 import time
-import time
 
 pygame.init()
 
@@ -29,9 +28,7 @@ MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
 level = 1
-attack_level=0
-defense_level=0
-health_level=0
+
 
 # define player action variables
 moving_left = False
@@ -39,21 +36,55 @@ moving_right = False
 shoot = False 
 
 # load images
-
+# store tiles in a list
+img_list = []
+for x in range(TILE_TYPES):
+    img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png')
+    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+    img_list.append(img)
 # Pepperoni (bullet)
 
 pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
-
+#pick up boxes
+health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
+ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
+cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
+cutting_board_img = pygame.image.load('img/Interactive Elements/tiles/29.png').convert_alpha()
+cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
+mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
+mug_img = pygame.transform.scale(mug_img, (95, 95))
+pan_img = pygame.image.load('img/Interactive Elements/tiles/31.png').convert_alpha()
+pan_img = pygame.transform.scale(pan_img, (100, 100))
+towel_img = pygame.image.load('img/Interactive Elements/tiles/32.png').convert_alpha()
+towel_img = pygame.transform.scale(towel_img, (125, 125))
+sink_img = pygame.image.load('img/Interactive Elements/tiles/22.png').convert_alpha()
+sink_img = pygame.transform.scale(sink_img, (70, 70))
+oil_img = pygame.image.load('img/Interactive Elements/tiles/23.png').convert_alpha()
+sink_tile_img = pygame.image.load('img/Interactive Elements/tiles/33.png').convert_alpha()
+sink_tile_img = pygame.transform.scale(sink_tile_img, (TILE_SIZE, TILE_SIZE))
+oil_tile_img = pygame.image.load('img/Interactive Elements/tiles/24.png').convert_alpha()
 
 item_boxes = {
     'Health'	: health_box_img,
     'Ammo'		: ammo_box_img,
     'Cheezy'    : cheezy_img
 }
-
+decorative_items = {
+    'Cutting Board' : cutting_board_img,
+    'Mug' : mug_img,
+    'Pan' : pan_img,
+    'Towel' : towel_img
+}
+threat_items = {
+    'Sink' : sink_img,
+    'Oil' : oil_img,
+    'Sink Tile' : sink_tile_img,
+    'Oil Tile' : oil_tile_img
+}
 
 # define colours
-
+BG = (252,244,163)
+WOOD_BROWN = (193, 154, 107) 
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -66,7 +97,8 @@ def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
 
-
+"""def draw_bg():
+    screen.fill(BG)"""
     
 
 # fixed the bullet-character gap problem
@@ -92,7 +124,7 @@ class Character(pygame.sprite.Sprite):
         self.ammo = ammo
         self.start_ammo = ammo
         self.shoot_cooldown = 0
-
+        self.cheezy = 0
         self.health = 100 # self.health = health for diff health for peppy and enemy
         self.max_health = self.health # for health bar
         self.direction = 1
@@ -117,7 +149,6 @@ class Character(pygame.sprite.Sprite):
         self.base_speed = self.speed 
         
         # load all images for the players
-        animation_types = ['Idle', 'Roll', 'Jump', 'Dead', 'Attack']
         animation_types = ['Idle', 'Roll', 'Jump', 'Dead', 'Attack']
         for animation in animation_types:
             # reset temporary list of images
@@ -172,7 +203,8 @@ class Character(pygame.sprite.Sprite):
 
     def move(self, moving_left, moving_right, dash):
         # reset movement variables
-
+        global bg_scroll
+        global screen_scroll
         dx = 0 # will need these for collision
         dy = 0
 
@@ -193,18 +225,16 @@ class Character(pygame.sprite.Sprite):
                 self.last_dash = time.time()
                 dash = True
             if moving_right:
-                dx += self.dash_distance
-               
-            self.last_dash = time.time()"""
+                dx += self.dash_distance"""
         
         if dash and time.time() - self.last_dash > self.dash_cooldown:
             self.dash_start_time = time.time()
             self.speed = self.base_speed * 5
             
             """if moving_left:
-                dx = -self.speed     
+                dx -= self.speed
             if moving_right:
-                dx = self.speed """
+                dx += self.speed"""
             
             self.last_dash = time.time()
         
@@ -249,7 +279,18 @@ class Character(pygame.sprite.Sprite):
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom        
         
+        # check for collision with threats
+        if pygame.sprite.spritecollide(self, threat_group, False):
+            self.health = 0
 
+        # check if player fallen off the map 
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.health = 0
+
+        # check for collision with pizza box (exit)
+        level_complete = False
+        if pygame.sprite.spritecollide(self, exit_group, False):
+            level_complete = True
         
         # check if going off the edge of the screen
         if self.char_type == 'Peppy':
@@ -262,9 +303,23 @@ class Character(pygame.sprite.Sprite):
         self.rect.x += dx 
         self.rect.y += dy
 
+        # update scroll based on player position
+        screen_scroll = 0
+        if self.char_type == 'Peppy':
+            max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
+            # Check if player is near the screen edges and needs to scroll
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and dx > 0 and bg_scroll < max_scroll:
+                self.rect.x -= dx
+                screen_scroll = -dx
+                bg_scroll -= screen_scroll
+            elif self.rect.left < SCROLL_THRESH and dx < 0 and bg_scroll > abs(dx):
+                self.rect.x -= dx
+                screen_scroll = -dx
+                bg_scroll -= screen_scroll
+            else:
+                self.rect.x += dx
 
-
-
+        return screen_scroll, level_complete
     
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
@@ -274,7 +329,7 @@ class Character(pygame.sprite.Sprite):
             # reduce ammo
             self.ammo -= 1
     
-    def ai(self):
+    def ai(self, screen_scroll):
         if self.alive and player.alive:
             if self.idling == False and random.randint(1, 200) == 1:
                 self.update_action(0)#0: idle
@@ -294,7 +349,6 @@ class Character(pygame.sprite.Sprite):
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
                     self.move(ai_moving_left, ai_moving_right, False)
-                    self.move(ai_moving_left, ai_moving_right, False)
                     self.update_action(1)#1: run
                     self.move_counter += 1
                     #update ai vision as the enemy moves
@@ -307,7 +361,8 @@ class Character(pygame.sprite.Sprite):
                     self.idling_counter -= 1
                     if self.idling_counter <= 0:
                         self.idling = False
-
+        # scrolling
+        self.rect.x += screen_scroll
     
     def check_alive(self):
         if self.health <= 0 :
@@ -319,8 +374,75 @@ class Character(pygame.sprite.Sprite):
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
 
+class World():
+    def __init__(self):
+        self.obstacle_list = []
+        self.level_length = 0
+
+    # world data list
+    def process_data(self, data):
+        self.level_length = len(data[0]) # columns
+        #iterate through each value in level data file
+        for y, row in enumerate(data):
+            for x, tile in enumerate(row):
+                if tile >= 0:
+                    img = img_list[tile]
+                    img_rect = img.get_rect()
+                    img_rect.x = x * TILE_SIZE
+                    img_rect.y = y * TILE_SIZE
+                    tile_data = (img, img_rect)
+                    if tile >= 0 and tile <= 18:
+                        self.obstacle_list.append(tile_data)
+                    elif tile == 22:
+                         threat = Threat('Sink', x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 23:
+                         threat = Threat('Oil', x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 24:
+                         threat = Threat('Oil Tile', x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 33:
+                         threat = Threat("Sink Tile", x * TILE_SIZE, y * TILE_SIZE)
+                         threat_group.add(threat)
+                    elif tile == 29:
+                          decoration = Decoration("Cutting Board", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 30:
+                          decoration = Decoration("Mug", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 31:
+                          decoration = Decoration("Pan", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 32:
+                          decoration = Decoration("Towel", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 25:#create player
+                        player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
+                        health_bar = HealthBar(10, 10, player.health, player.health)
+                    elif tile == 26:#create enemies
+                        enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy_group.add(enemy)
+                    elif tile == 27:#create ammo box
+                         item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
+                         item_box_group.add(item_box)
+                    elif tile == 28:#create health box
+                         item_box = ItemBox('Health', x * TILE_SIZE, y * TILE_SIZE)
+                         item_box_group.add(item_box)
+                    elif tile == 21:#create cheezy
+                          cheezy = ItemBox('Cheezy', x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(cheezy)
+                    elif tile == 19:#create exit
+                        exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
+                        exit_group.add(exit)
+
+        return player, health_bar
 
 
+    def draw(self):
+        for tile in self.obstacle_list:
+                  tile[1][0] += screen_scroll
+                  screen.blit(tile[0], tile[1])
 
 
 class Decoration(pygame.sprite.Sprite):
@@ -331,7 +453,8 @@ class Decoration(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
-
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
 
 class Threat(pygame.sprite.Sprite):
@@ -343,7 +466,8 @@ class Threat(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
-    
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
 class Exit(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -352,7 +476,8 @@ class Exit(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
-
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
 
 
 class ItemBox(pygame.sprite.Sprite):
@@ -363,8 +488,8 @@ class ItemBox(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
-    def update(self):
-
+    def update(self, screen_scroll):
+        self.rect.x += screen_scroll
         #check if the player has picked up the box
         if pygame.sprite.collide_rect(self, player):
             #check what kind of box it was
@@ -374,7 +499,9 @@ class ItemBox(pygame.sprite.Sprite):
                     player.health = player.max_health
             elif self.item_type == 'Ammo':
                 player.ammo += 15
-
+            elif self.item_type == 'Cheezy':
+                player.cheezy += 1
+            print(player.cheezy)
             #delete the item box
             self.kill()
 
@@ -410,7 +537,7 @@ class Pepperoni(pygame.sprite.Sprite):
     
     def update(self):
         # move pepperoni
-        self.rect.x += (self.direction * self.speed) 
+        self.rect.x += (self.direction * self.speed) + screen_scroll
         # check if pepperoni has gone off screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH: # right hand side of bullet to the left of screen, vice versa
             self.kill()
@@ -423,8 +550,8 @@ class Pepperoni(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
-                    player.health -=5
-                    self.kill() # delete bullet 
+                player.health -= 5
+                self.kill() # delete bullet 
        
         
         for enemy in enemy_group:
@@ -451,7 +578,13 @@ exit_group = pygame.sprite.Group()
 
 
 
-
+# create an player instance of the class for player
+"""player = Character("Peppy",200,200,1.65, 5, 20)
+health_bar = HealthBar(10, 10, player.health, player.health)
+enemy = Character("Pineapple",500, 200, 1.65, 2, 20) # change char type later
+enemy2 = Character('Pineapple', 300, 200, 1.65, 2, 20)		
+enemy_group.add(enemy)		
+enemy_group.add(enemy2)"""
 
 #create empty tile list
 world_data = []
@@ -464,5 +597,5 @@ with open(f'level{level}_data.csv', newline='') as csvfile:
     for x, row in enumerate(reader):
         for y, tile in enumerate(row):
             world_data[x][y] = int(tile)
-# world = World()
+world = World()
 player, health_bar = world.process_data(world_data)
