@@ -2,6 +2,7 @@ import pygame
 import os
 import random
 import csv
+import time
 
 pygame.init()
 
@@ -23,10 +24,10 @@ ROWS = 20
 COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 34
+MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
 level = 1
-
 
 
 # define player action variables
@@ -68,14 +69,12 @@ item_boxes = {
     'Ammo'		: ammo_box_img,
     'Cheezy'    : cheezy_img
 }
-
 decorative_items = {
     'Cutting Board' : cutting_board_img,
     'Mug' : mug_img,
     'Pan' : pan_img,
     'Towel' : towel_img
 }
-
 threat_items = {
     'Sink' : sink_img,
     'Oil' : oil_img,
@@ -98,10 +97,9 @@ def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
 
-def draw_bg():
-    screen.fill(BG)
-    """    bg_img = pygame.image.load('img/level_1.png').convert_alpha()
-    screen.blit(bg_img,(1000,500) )"""
+"""def draw_bg():
+    screen.fill(BG)"""
+    
 
 # fixed the bullet-character gap problem
 def custom_collision(character, pepperoni_group):
@@ -143,9 +141,15 @@ class Character(pygame.sprite.Sprite):
         self.vision = pygame.Rect(0, 0, 150, 20)
         self.idling = False
         self.idling_counter = 0
+        # dash
+        self.dash_duration = 0.3  # Dash duration in seconds
+        self.dash_cooldown = 1  # Cooldown between dashes in seconds
+        self.last_dash = 0
+        self.dash_start_time = 0
+        self.base_speed = self.speed 
         
         # load all images for the players
-        animation_types = ['Idle', 'Roll', 'Jump', 'Dead']
+        animation_types = ['Idle', 'Roll', 'Jump', 'Dead', 'Attack']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -175,7 +179,7 @@ class Character(pygame.sprite.Sprite):
 
         # if the animation has run out then reset back to the start
         if self.frame_index >= len(self.animation_list[self.action]):
-            if self.action == 3:
+            if self.action == 3 or self.action == 4:
                 self.frame_index = len(self.animation_list[self.action]) -1
             else:
                 self.frame_index = 0 
@@ -197,11 +201,10 @@ class Character(pygame.sprite.Sprite):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-    def move(self, moving_left, moving_right):
+    def move(self, moving_left, moving_right, dash):
         # reset movement variables
         global bg_scroll
         global screen_scroll
-        
         dx = 0 # will need these for collision
         dy = 0
 
@@ -214,7 +217,31 @@ class Character(pygame.sprite.Sprite):
             dx = self.speed 
             self.flip = False
             self.direction = 1
-
+        
+        # Dash logic
+        """if dash and time.time() - self.last_dash > self.dash_cooldown:
+            if moving_left:
+                dx -= self.dash_distance
+                self.last_dash = time.time()
+                dash = True
+            if moving_right:
+                dx += self.dash_distance"""
+        
+        if dash and time.time() - self.last_dash > self.dash_cooldown:
+            self.dash_start_time = time.time()
+            self.speed = self.base_speed * 5
+            
+            """if moving_left:
+                dx -= self.speed
+            if moving_right:
+                dx += self.speed"""
+            
+            self.last_dash = time.time()
+        
+        if time.time() - self.dash_start_time > self.dash_duration:
+            self.dash = False 
+            self.speed = self.base_speed
+            
         # jump 
         if self.jump == True and self.in_air == False:
             self.vel_y =-20
@@ -240,7 +267,6 @@ class Character(pygame.sprite.Sprite):
                 if self.char_type == "enemy":
                     self.direction *= -1
                     self.move_counter = 0
-
             #check for collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 #check if below the ground, i.e. jumping
@@ -251,8 +277,8 @@ class Character(pygame.sprite.Sprite):
                 elif self.vel_y >= 0:
                     self.vel_y = 0
                     self.in_air = False
-                    dy = tile[1].top - self.rect.bottom   
-
+                    dy = tile[1].top - self.rect.bottom        
+        
         # check for collision with threats
         if pygame.sprite.spritecollide(self, threat_group, False):
             self.health = 0
@@ -265,15 +291,16 @@ class Character(pygame.sprite.Sprite):
         level_complete = False
         if pygame.sprite.spritecollide(self, exit_group, False):
             level_complete = True
-
-
+        
         # check if going off the edge of the screen
         if self.char_type == 'Peppy':
             if self.rect.x + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
                 dx = 0
+            """if self.rect.y + dy > SCREEN_HEIGHT:
+                self.alive = False """
 
         # update rectangle position
-        self.rect.x += dx
+        self.rect.x += dx 
         self.rect.y += dy
 
         # update scroll based on player position
@@ -293,8 +320,7 @@ class Character(pygame.sprite.Sprite):
                 self.rect.x += dx
 
         return screen_scroll, level_complete
-
-
+    
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20 # reload speed of bullet
@@ -322,7 +348,7 @@ class Character(pygame.sprite.Sprite):
                     else:
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
-                    self.move(ai_moving_left, ai_moving_right)
+                    self.move(ai_moving_left, ai_moving_right, False)
                     self.update_action(1)#1: run
                     self.move_counter += 1
                     #update ai vision as the enemy moves
@@ -335,10 +361,9 @@ class Character(pygame.sprite.Sprite):
                     self.idling_counter -= 1
                     if self.idling_counter <= 0:
                         self.idling = False
-
         # scrolling
         self.rect.x += screen_scroll
-
+    
     def check_alive(self):
         if self.health <= 0 :
             self.health = 0
@@ -419,6 +444,7 @@ class World():
                   tile[1][0] += screen_scroll
                   screen.blit(tile[0], tile[1])
 
+
 class Decoration(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -430,11 +456,13 @@ class Decoration(pygame.sprite.Sprite):
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
 
+
 class Threat(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.item_type = item_type
         self.image = threat_items[self.item_type]
+        # self.image = pygame.transform.scale(img, (75, 75))
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
@@ -450,6 +478,7 @@ class Exit(pygame.sprite.Sprite):
 
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
+
 
 class ItemBox(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
@@ -475,7 +504,6 @@ class ItemBox(pygame.sprite.Sprite):
             print(player.cheezy)
             #delete the item box
             self.kill()
-
 
 class HealthBar():
     def __init__(self, x, y, health, max_health):

@@ -11,7 +11,7 @@ fps = 60
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 500
 LOWER_MARGIN = 200
-SIDE_MARGIN = 300
+SIDE_MARGIN = 400
 
 # level editor screen
 screen = pygame.display.set_mode((SCREEN_WIDTH + SIDE_MARGIN, SCREEN_HEIGHT + LOWER_MARGIN))
@@ -19,12 +19,11 @@ pygame.display.set_caption("Level Editor")
 
 # game variables
 ROWS = 20
-COLS = 200
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 34
+TILE_TYPES = 36
 current_tile = 0
 level = 0
-
+COLS = 200
 scroll_left = False
 scroll_right = False
 scroll = 0
@@ -123,7 +122,7 @@ for i in range(len(img_list)):
     tile_button = menubutton.DrawMenu(SCREEN_WIDTH + (75 * button_col) + 25, (75 * button_row) + 50, img_list[i], 1)
     button_list.append(tile_button)
     button_col += 1
-    if button_col == 4:
+    if button_col == 5:
         button_row += 1
         button_col = 0
 
