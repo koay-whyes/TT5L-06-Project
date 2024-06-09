@@ -38,6 +38,9 @@ GameOverMusic = pygame.mixer.Sound("game_over_bgm.mp3")
 VictoryMusic= pygame.mixer.Sound("victory_bgm.mp3") 
 StatsMusic=pygame.mixer.Sound("stats_bgm.mp3")
 
+#sound effect
+jump_fx = pygame.mixer.Sound("sound/jump.mp3")
+
 main_channel = pygame.mixer.Channel(1)
 story_channel = pygame.mixer.Channel(2)
 game_over_channel = pygame.mixer.Channel(3)
@@ -285,6 +288,7 @@ while running:
                 shoot = True
             elif event.key == pygame.K_w and player.alive and not pause_menu:
                 player.jump = True
+                jump_fx.play()
             elif event.key == pygame.K_ESCAPE:
                 running = False 
             elif event.key == pygame.K_RETURN:

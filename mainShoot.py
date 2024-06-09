@@ -35,6 +35,9 @@ moving_left = False
 moving_right = False 
 shoot = False 
 
+#sound
+shoot_fx = pygame.mixer.Sound("sound/shoot.mp3")
+
 # load images
 # store tiles in a list
 img_list = []
@@ -328,6 +331,7 @@ class Character(pygame.sprite.Sprite):
             pepperoni_group.add(pepperoni)
             # reduce ammo
             self.ammo -= 1
+            shoot_fx.play()
     
     def ai(self, screen_scroll):
         if self.alive and player.alive:
