@@ -231,15 +231,7 @@ def game_over():
         main_channel.unpause()
         game_over_channel.pause()
 
-def draw_victory_menu():
-    main_channel.pause()
-    victory_channel.unpause()
-    screen.blit(victory_background_img,(0,0))
-    victory_mainmenu_button.draw(screen)
-    victory_settings_button.draw(screen)
-    victory_next_button.draw(screen)
-    stats_button.draw(screen)
-    
+
 settings=False
 main_menu=True
 sound_on=True
@@ -341,7 +333,6 @@ while running:
             if back_to == "victory":
                 victory=True
                 settings=False
-                draw_victory_menu()
             elif back_to == "main_menu":
                 main_menu=True
                 settings=False
@@ -402,7 +393,7 @@ while running:
         if stats_button.draw(screen):
             stats=True
             victory=False
-            
+
     elif stats==True:
         victory_channel.pause()
         stats_channel.unpause()
