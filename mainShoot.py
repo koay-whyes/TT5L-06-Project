@@ -28,7 +28,7 @@ MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
 level = 1
-
+defense_level=0
 
 # define player action variables
 moving_left = False
@@ -125,7 +125,7 @@ class Character(pygame.sprite.Sprite):
         self.start_ammo = ammo
         self.shoot_cooldown = 0
         self.cheezy = 0
-        self.health = 100 # self.health = health for diff health for peppy and enemy
+        self.health = 120 # self.health = health for diff health for peppy and enemy
         self.max_health = self.health # for health bar
         self.direction = 1
         self.flip = False
@@ -554,15 +554,17 @@ class Pepperoni(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
-                player.health -= 5
-                self.kill() # delete bullet 
+                damage_amounts = {0: 10, 1: 8, 2: 6, 3: 4}
+                player.health -= damage_amounts.get(defense_level, 10)
+                print(f"player health:{player.health}")
+                self.kill()  # delete bullet
        
         
         for enemy in enemy_group:
             if pygame.sprite.spritecollide(enemy, pepperoni_group, False, custom_collision):
                 if enemy.alive:
                     
-                    enemy.health -= 25
+                    enemy.health -= 20
                     self.kill() # delete bullet 
 
 
