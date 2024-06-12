@@ -26,9 +26,8 @@ pygame.display.set_caption("Peppy the Pizza") # display on top of the window
 clock = pygame.time.Clock() 
 FPS = 60 
 # define game variables
-screen_scroll = 0
-bg_scroll = 0
 level = 1
+
 
 #music
 MainMusic = pygame.mixer.Sound("bgm.mp3") 
@@ -190,18 +189,56 @@ pizza_stats1=menubutton.DrawMenu(350,150,pizza_stats1_img,10.0)
 pizza_stats2=menubutton.DrawMenu(350,150,pizza_stats2_img,10.0)
 pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
 
-#reset level
 def reset_level():
-    global player,enemy,health_bar,world_data,screen_scroll
+    # Load new level data
+    global player,enemy,health_bar,world_data
+    # Reset player and enemy health
+    player.health = 120
+    for enemy in enemy_group:
+        enemy.health = 120
+    player.ammo = 20
     enemy_group.empty()
     item_box_group.empty()
     decoration_group.empty()
     threat_group.empty()
     exit_group.empty()
     pepperoni_group.empty()
-    MS.player.health = 100
+    MS.world_data.clear()
+    MS.world.obstacle_list.clear()
+    world_data = []
+    for row in range(ROWS):
+        r = [-1] * COLS
+        world_data.append(r)
+    with open(f'level{level}_data.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for x, row in enumerate(reader):
+            for y, tile in enumerate(row):
+                world_data[x][y] = int(tile)
+    MS.world = MS.World()
+    MS.world.process_data(world_data, MS.level)
+    MS.player.rect.center = (player.rect.centerx,player.rect.centery)
+    MS.screen_scroll = 0
+    MS.bg_scroll =0
+    MS.player.rect.center = (100,100)
+    for enemy in enemy_group:
+        enemy.rect.center = (enemy.rect.centerx,enemy.rect.centery)
+
+
+
+'''
+#reset level
+def reset_level():
+    global player,enemy,health_bar,world_data
+    enemy_group.empty()
+    item_box_group.empty()
+    decoration_group.empty()
+    threat_group.empty()
+    exit_group.empty()
+    pepperoni_group.empty()
+    MS.player.health = 120
     MS.player.ammo = 20 
-    cheezy = 0 
+    MS.bg_scroll=0
+    MS.screen_scroll=0
     #create empty tile list
     world_data = []
     for row in range(ROWS):
@@ -215,10 +252,8 @@ def reset_level():
                 world_data[x][y] = int(tile)
     world = World()
     player, health_bar = world.process_data(world_data, level)
-    screen_scroll = 0
-    MS.player.rect.center = (100,100)
-
-
+    MS.player.rect.center = (player.rect.centerx,player.rect.centery)
+'''
 def game_over():
     game_over_background_img=pygame.image.load("img/game_over_bg.png")
     game_over_restart_img=pygame.image.load("img/game_over_restart.png").convert_alpha()
@@ -482,6 +517,7 @@ while running:
 
     else:
         if not pause_menu:
+            print(f"{screen_scroll}")
             # update background
             draw_bg()
             #draw world map
@@ -542,9 +578,8 @@ while running:
                 # check if player has completed the level
                 if level_complete == True:
                     level += 1
-                    bg_scroll = 0
-                    reset_level()
-                    victory = True 
+                    victory = True
+                    reset_level() 
                     # if level <= MAX_LEVELS:
                     if level == 2:
                         #load in level data and create world
@@ -555,7 +590,6 @@ while running:
                                     world_data[x][y] = int(tile)
                         world = World()
                         player, health_bar = world.process_data(world_data, level)
-
                 max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
                 if bg_scroll < 0:
                     bg_scroll = 0
