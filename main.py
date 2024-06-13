@@ -196,34 +196,29 @@ pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
 
 #reset level
 def reset_level():
-    global player,enemy,health_bar,world_data
+    global player,enemy,health_bar,world_data,bg_scroll,screen_scroll
     enemy_group.empty()
     item_box_group.empty()
     decoration_group.empty()
     threat_group.empty()
     exit_group.empty()
     pepperoni_group.empty()
-    MS.player.health = 100
-    MS.player.ammo = 20 
-    cheezy = 0 
+    player.health = 100
+    player.ammo = 20 
+    player.cheezy = 0 
+    bg_scroll = 0
+    screen_scroll = 0
     #create empty tile list
-    world_data = []
+    data = []
     for row in range(ROWS):
         r = [-1] * COLS
-        world_data.append(r)
-    #load in level data and create world
-    with open(f'level{level}_data.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for x, row in enumerate(reader):
-            for y, tile in enumerate(row):
-                world_data[x][y] = int(tile)
-    world = World()
-    player, health_bar = world.process_data(world_data, level)
-    screen_scroll = 0
-    MS.player.rect.center = (100,100)
+        data.append(r)
+   
+    return data
 
 
 def game_over():
+    global bg_scroll, screen_scroll
     game_over_background_img=pygame.image.load("img/game_over_bg.png")
     game_over_restart_img=pygame.image.load("img/game_over_restart.png").convert_alpha()
     game_over_restart_button = menubutton.DrawMenu(410,360,game_over_restart_img,2.5)
@@ -231,6 +226,8 @@ def game_over():
     main_channel.pause()
     game_over_channel.unpause()
     if game_over_restart_button.draw(screen):
+        bg_scroll = 0
+        screen_scroll = 0
         reset_level()
         main_channel.unpause()
         game_over_channel.pause()
@@ -509,12 +506,14 @@ while running:
             decoration_group.update(screen_scroll)
             threat_group.update(screen_scroll)
             exit_group.update(screen_scroll)
+            moving_platform_group.update(screen_scroll)
 
             pepperoni_group.draw(screen)
             item_box_group.draw(screen)
             decoration_group.draw(screen)
             threat_group.draw(screen)
             exit_group.draw(screen)
+            moving_platform_group.draw(screen)
 
             player.update() 
             player.draw()
@@ -536,31 +535,55 @@ while running:
                     player.update_action(0) # index 0: idle
                 screen_scroll, level_complete = player.move(moving_left, moving_right, dash) # follows player speed # scrolling follows dashing TRUE or FALSE
                 bg_scroll -= screen_scroll # cumulative
-
+                max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
+                if bg_scroll < 0:
+                    bg_scroll = 0
+                elif bg_scroll > max_scroll:
+                    bg_scroll = max_scroll
                 # check if player has completed the level
                 if level_complete == True:
                     level += 1
-                    bg_scroll = 0
-                    reset_level()
+                    world_data = reset_level()
                     victory = True 
-                    # if level <= MAX_LEVELS:
-                    if level == 2:
+                    if level <= MAX_LEVELS:
+                    # if level == 2:
                         #load in level data and create world
                         with open(f'level{level}_data.csv', newline='') as csvfile:
                             reader = csv.reader(csvfile, delimiter=',')
                             for x, row in enumerate(reader):
                                 for y, tile in enumerate(row):
                                     world_data[x][y] = int(tile)
+                                     
                         world = World()
                         player, health_bar = world.process_data(world_data, level)
-
-                max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
-                if bg_scroll < 0:
-                    bg_scroll = 0
-                elif bg_scroll > max_scroll:
-                    bg_scroll = max_scroll
             else:
                 screen_scroll = 0
+                if pause_button.draw(screen):
+                    pause_menu = True
+                if pause_menu==True:
+                    screen.fill(WOOD_BROWN)
+                    #Continue
+                    if resume_button.draw(screen):
+                        pause_menu=False
+                    #Restart Level
+                    if restart_button.draw(screen):
+                        pause_menu=False
+                        world_data = reset_level()
+                    if menu_button.draw(screen):
+                        warning=True
+                    if warning == True: 
+                        screen.blit(warning_scaled_img, (370,90))
+                        if tick_button.draw(screen):
+                            main_menu=True
+                            pause_menu=False
+                            settings=False
+                            warning=False
+                            reset_level()
+                        elif x_button.draw(screen):
+                            pause_menu=True
+                            warning=False
+                if player.alive==False:
+                    game_over()
                 
                 
                 # player.move(moving_left, moving_right, dash)
@@ -568,32 +591,7 @@ while running:
                 # not calling enemy.move()
 
         #Pause Menu
-        if pause_button.draw(screen):
-            pause_menu = True
-        if pause_menu==True:
-            screen.fill(WOOD_BROWN)
-            #Continue
-            if resume_button.draw(screen):
-                pause_menu=False
-            #Restart Level
-            if restart_button.draw(screen):
-                pause_menu=False
-                reset_level()
-            if menu_button.draw(screen):
-                warning=True
-            if warning == True: 
-                screen.blit(warning_scaled_img, (370,90))
-                if tick_button.draw(screen):
-                    main_menu=True
-                    pause_menu=False
-                    settings=False
-                    warning=False
-                    reset_level()
-                elif x_button.draw(screen):
-                    pause_menu=True
-                    warning=False
-        if player.alive==False:
-            game_over()
+
 
     pygame.display.update() 
 

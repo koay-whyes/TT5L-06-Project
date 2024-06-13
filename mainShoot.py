@@ -37,6 +37,10 @@ shoot = False
 
 #sound
 shoot_fx = pygame.mixer.Sound("sound/shoot.mp3")
+cheezy_fx = pygame.mixer.Sound("sound/cheezy.mp3")
+item_fx = pygame.mixer.Sound("sound/item.mp3")
+pizzabox_fx = pygame.mixer.Sound("sound/pizzabox.mp3")
+fall_fx = pygame.mixer.Sound("sound/fall.mp3")
 
 # load images
 # store tiles in a list
@@ -52,6 +56,7 @@ pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
 health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
 ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
 cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
+cheezy_frames = [pygame.image.load(f'img/Interactive Elements/Cheezys/{i}.png').convert_alpha()for i in range(21,26)]
 cutting_board_img = pygame.image.load('img/Interactive Elements/tiles/29.png').convert_alpha()
 cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
 mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
@@ -264,23 +269,37 @@ class Character(pygame.sprite.Sprite):
         #check for collision
         for tile in world.obstacle_list:
             #check collision in the x direction
-            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
-                dx = 0
-                # if the ai hit obstacles, make them turn around
-                if self.char_type == "enemy":
-                    self.direction *= -1
-                    self.move_counter = 0
-            #check for collision in the y direction
-            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                #check if below the ground, i.e. jumping
-                if self.vel_y < 0:
-                    self.vel_y = 0
-                    dy = tile[1].bottom - self.rect.top
-                #check if above the ground, i.e. falling
-                elif self.vel_y >= 0:
-                    self.vel_y = 0
-                    self.in_air = False
-                    dy = tile[1].top - self.rect.bottom        
+            if isinstance(tile, MovingPlatform):
+                if tile.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                    dx = 0
+                if tile.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                    if self.vel_y < 0:
+                        self.vel_y = 0
+                        dy = tile.rect.bottom - self.rect.top
+                    # above moving platforms
+                    elif self.vel_y >= 0:
+                        self.vel_y = 0
+                        self.in_air = False
+                        dy = tile.rect.top - self.rect.bottom   
+                        self.rect.x += tile.move_direction 
+            else:
+                if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                    dx = 0
+                    # if the ai hit obstacles, make them turn around
+                    if self.char_type == "enemy":
+                        self.direction *= -1
+                        self.move_counter = 0                 
+                #check for collision in the y direction
+                if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                    #check if below the ground, i.e. jumping
+                    if self.vel_y < 0:
+                        self.vel_y = 0
+                        dy = tile[1].bottom - self.rect.top
+                    #check if above the ground, i.e. falling
+                    elif self.vel_y >= 0:
+                        self.vel_y = 0
+                        self.in_air = False
+                        dy = tile[1].top - self.rect.bottom        
         
         # check for collision with threats
         if pygame.sprite.spritecollide(self, threat_group, False):
@@ -294,6 +313,7 @@ class Character(pygame.sprite.Sprite):
         level_complete = False
         if pygame.sprite.spritecollide(self, exit_group, False):
             level_complete = True
+            pizzabox_fx.play()
         
         # check if going off the edge of the screen
         if self.char_type == 'Peppy':
@@ -378,6 +398,32 @@ class Character(pygame.sprite.Sprite):
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
 
+class MovingPlatform(pygame.sprite.Sprite):
+    def __init__(self, image, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.move_counter = 0
+        self.move_direction = 1
+
+
+    def update(self, screen_scroll):
+        # moving the platforms
+        self.rect.x += self.move_direction
+        self.move_counter += 1
+        if abs(self.move_counter) > 50 :
+            self.move_direction *= -1
+            self.move_counter *= -1
+
+        self.rect.x += screen_scroll
+
+
+
+
+
+
 class World():
     def __init__(self):
         self.obstacle_list = []
@@ -395,8 +441,14 @@ class World():
                     img_rect.x = x * TILE_SIZE
                     img_rect.y = y * TILE_SIZE
                     tile_data = (img, img_rect)
-                    if tile >= 0 and tile <= 18:
+                    # platforms
+                    if tile >= 0 and tile <= 17:
                         self.obstacle_list.append(tile_data)
+                    # moving platforms
+                    elif tile == 18:
+                        moving_platform = MovingPlatform(img, x * TILE_SIZE, y * TILE_SIZE)
+                        self.obstacle_list.append(moving_platform)
+                        moving_platform_group.add(moving_platform)
                     elif tile == 22:
                          threat = Threat('Sink', x * TILE_SIZE, y * TILE_SIZE)
                          threat_group.add(threat)
@@ -449,6 +501,10 @@ class World():
 
     def draw(self):
         for tile in self.obstacle_list:
+            if isinstance(tile, MovingPlatform):
+                  tile.update(screen_scroll)
+                  screen.blit(tile.image, tile.rect)
+            else:
                   tile[1][0] += screen_scroll
                   screen.blit(tile[0], tile[1])
 
@@ -463,6 +519,7 @@ class Decoration(pygame.sprite.Sprite):
 
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
+
 
 
 class Threat(pygame.sprite.Sprite):
@@ -492,23 +549,41 @@ class ItemBox(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.item_type = item_type
-        self.image = item_boxes[self.item_type]
+        if self.item_type == "Cheezy":
+            self.frames =  cheezy_frames
+            self.current_frame = 0
+            self.last_update = pygame.time.get_ticks()
+            self.frame_rate = 100
+            self.image = self.frames[self.current_frame]
+        else:
+            self.image = item_boxes[self.item_type]
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
+
+        if self.item_type == "Cheezy":
+            now = pygame.time.get_ticks()
+            if now - self.last_update > self.frame_rate:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.frames)
+                self.image = self.frames[self.current_frame]
+
         #check if the player has picked up the box
         if pygame.sprite.collide_rect(self, player):
             #check what kind of box it was
             if self.item_type == 'Health':
                 player.health += 25
+                item_fx.play()
                 if player.health > player.max_health:
                     player.health = player.max_health
             elif self.item_type == 'Ammo':
                 player.ammo += 15
+                item_fx.play()
             elif self.item_type == 'Cheezy':
                 player.cheezy += 1
+                cheezy_fx.play()
             print(player.cheezy)
             #delete the item box
             self.kill()
@@ -552,7 +627,10 @@ class Pepperoni(pygame.sprite.Sprite):
 
         #check for collision with level
         for tile in world.obstacle_list:
-            if tile[1].colliderect(self.rect):
+            if isinstance(tile, MovingPlatform):
+                if tile.rect.colliderect(self.rect):
+                    self.kill()
+            elif tile[1].colliderect(self.rect):
                 self.kill()
                     
         # check collision with characters
@@ -581,6 +659,8 @@ item_box_group = pygame.sprite.Group()
 decoration_group = pygame.sprite.Group()
 threat_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
+moving_platform_group =  pygame.sprite.Group()
+
 
 
 
