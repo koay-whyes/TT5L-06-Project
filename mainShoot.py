@@ -10,7 +10,8 @@ pygame.init()
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.5)
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+flags = pygame.HWSURFACE | pygame.DOUBLEBUF
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags)
 pygame.display.set_caption('Peppy the Pizza')
 
 # set framerate
@@ -21,9 +22,9 @@ FPS = 60
 GRAVITY = 0.75
 SCROLL_THRESH = 400
 ROWS = 20
-COLS = 200
+COLS = 640
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 34
+TILE_TYPES = 36
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
@@ -42,35 +43,41 @@ item_fx = pygame.mixer.Sound("sound/item.mp3")
 pizzabox_fx = pygame.mixer.Sound("sound/pizzabox.mp3")
 fall_fx = pygame.mixer.Sound("sound/fall.mp3")
 
+def loadify(imgname):
+    return pygame.image.load(imgname).convert_alpha()
+
 # load images
 # store tiles in a list
 img_list = []
 for x in range(TILE_TYPES):
-    img = pygame.image.load(f'img/Interactive Elements/tiles/{x}.png')
+    img = loadify(f'img/Interactive Elements/tiles/{x}.png')
     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
     img_list.append(img)
 # Pepperoni (bullet)
 
-pepperoni_img = pygame.image.load('img/icons/pepperoni.png').convert_alpha()
+
+
+
+pepperoni_img = loadify('img/icons/pepperoni.png') 
 #pick up boxes
-health_box_img = pygame.image.load('img/Interactive Elements/tiles/28.png').convert_alpha()
-ammo_box_img = pygame.image.load('img/Interactive Elements/tiles/27.png').convert_alpha()
-cheezy_img = pygame.image.load('img/Interactive Elements/tiles/21.png').convert_alpha()
-cheezy_frames = [pygame.image.load(f'img/Interactive Elements/Cheezys/{i}.png').convert_alpha()for i in range(21,26)]
-cutting_board_img = pygame.image.load('img/Interactive Elements/tiles/29.png').convert_alpha()
+health_box_img = loadify('img/Interactive Elements/tiles/28.png') 
+ammo_box_img = loadify('img/Interactive Elements/tiles/27.png') 
+cheezy_img = loadify('img/Interactive Elements/tiles/21.png') 
+cheezy_frames = [loadify(f'img/Interactive Elements/Cheezys/{i}.png') for i in range(21,26)]
+cutting_board_img = loadify('img/Interactive Elements/tiles/29.png') 
 cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
-mug_img = pygame.image.load('img/Interactive Elements/tiles/30.png').convert_alpha()
+mug_img = loadify('img/Interactive Elements/tiles/30.png') 
 mug_img = pygame.transform.scale(mug_img, (95, 95))
-pan_img = pygame.image.load('img/Interactive Elements/tiles/31.png').convert_alpha()
+pan_img = loadify('img/Interactive Elements/tiles/31.png') 
 pan_img = pygame.transform.scale(pan_img, (100, 100))
-towel_img = pygame.image.load('img/Interactive Elements/tiles/32.png').convert_alpha()
+towel_img = loadify('img/Interactive Elements/tiles/32.png') 
 towel_img = pygame.transform.scale(towel_img, (125, 125))
-sink_img = pygame.image.load('img/Interactive Elements/tiles/22.png').convert_alpha()
+sink_img = loadify('img/Interactive Elements/tiles/22.png') 
 sink_img = pygame.transform.scale(sink_img, (70, 70))
-oil_img = pygame.image.load('img/Interactive Elements/tiles/23.png').convert_alpha()
-sink_tile_img = pygame.image.load('img/Interactive Elements/tiles/33.png').convert_alpha()
+oil_img = loadify('img/Interactive Elements/tiles/23.png') 
+sink_tile_img = loadify('img/Interactive Elements/tiles/33.png') 
 sink_tile_img = pygame.transform.scale(sink_tile_img, (TILE_SIZE, TILE_SIZE))
-oil_tile_img = pygame.image.load('img/Interactive Elements/tiles/24.png').convert_alpha()
+oil_tile_img = loadify('img/Interactive Elements/tiles/24.png') 
 
 item_boxes = {
     'Health'	: health_box_img,
@@ -164,7 +171,7 @@ class Character(pygame.sprite.Sprite):
             # count number of files in the folder
             num_of_frames = len(os.listdir(f"img/{self.char_type}/{self.char_type}_{animation}_Frames"))
             for i in range(num_of_frames):
-                img = pygame.image.load(f"img/{self.char_type}/{self.char_type}_{animation}_Frames/{self.char_type}_{animation}_Frame{i}.png").convert_alpha() # add file directory of the pic
+                img = loadify(f"img/{self.char_type}/{self.char_type}_{animation}_Frames/{self.char_type}_{animation}_Frame{i}.png")  # add file directory of the pic
                 img = pygame.transform.scale(img, (int(img.get_width()*scale), int(img.get_height()*scale)))
                 temp_list.append(img)
             self.animation_list.append(temp_list)    
@@ -405,19 +412,20 @@ class MovingPlatform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.start_x = x
+        self.start_y = y
         self.move_counter = 0
         self.move_direction = 1
 
 
-    def update(self, screen_scroll):
+    def update(self):
         # moving the platforms
-        self.rect.x += self.move_direction
+        self.rect.x = self.start_x + self.move_counter * self.move_direction
         self.move_counter += 1
         if abs(self.move_counter) > 50 :
             self.move_direction *= -1
-            self.move_counter *= -1
-
-        self.rect.x += screen_scroll
+            self.move_counter *= 0
+    
 
 
 
@@ -502,7 +510,8 @@ class World():
     def draw(self):
         for tile in self.obstacle_list:
             if isinstance(tile, MovingPlatform):
-                  tile.update(screen_scroll)
+                  tile.start_x += screen_scroll
+                  tile.update()
                   screen.blit(tile.image, tile.rect)
             else:
                   tile[1][0] += screen_scroll

@@ -19,17 +19,21 @@ WOOD_BROWN = (193, 154, 107)
 # initialize pygame and create window
 
 pygame.mixer.init() 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+flags = pygame.HWSURFACE | pygame.DOUBLEBUF
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags)
 pygame.display.set_caption("Peppy the Pizza") # display on top of the window
 
 # set framerate
 clock = pygame.time.Clock() 
-FPS = 60 
+FPS = 60
 # define game variables
 cheezy = 0
 screen_scroll = 0
 bg_scroll = 0
 level = 1
+
+def loadify(imgname):
+    return  pygame.image.load(imgname).convert_alpha()
 
 #music
 MainMusic = pygame.mixer.Sound("bgm.mp3") 
@@ -63,9 +67,9 @@ dash = False
 
 # load img
 bg_imgs = {
-    1: pygame.image.load("img/level_1.png").convert_alpha(),
-    2: pygame.image.load("img/level_2.png").convert_alpha(),
-    3: pygame.image.load("img/level_1.png").convert_alpha()
+    1:  loadify("img/level_1.png") ,
+    2:  loadify("img/level_2.png") ,
+    3:  loadify("img/level_1.png") 
 }
 
 
@@ -74,82 +78,82 @@ def draw_bg():
     # scrolling
     bg_img = bg_imgs.get(level % len(bg_imgs), bg_imgs[1])
     width =  bg_img.get_width()
-    for x in range(5):
-    # bg_img = pygame.image.load('img/level_1.png').convert_alpha()
+    for x in range(16):
+    # bg_img =  loadify('img/level_1.png') 
         screen.blit(bg_img, ((x * width) - bg_scroll, 0))   
 
 
 #Main Menu images
-title_img = pygame.image.load("img/title.png").convert_alpha()
-settings_img = pygame.image.load("img/settings_button.png").convert_alpha()
-play_img = pygame.image.load("img/play_button.png").convert_alpha()
-exit_img=pygame.image.load("img/exit_button.png").convert_alpha()
-menu_background_img=pygame.image.load("img/menu_background.png")
+title_img =  loadify("img/title.png") 
+settings_img =  loadify("img/settings_button.png") 
+play_img =  loadify("img/play_button.png") 
+exit_img= loadify("img/exit_button.png") 
+menu_background_img= loadify("img/menu_background.png")
 
 #Settings Images
-soundon_img = pygame.image.load("img/soundon_button.png").convert_alpha()
-soundoff_img = pygame.image.load("img/soundoff_button.png").convert_alpha()
-back_img = pygame.image.load("img/back_button.png").convert_alpha()
-sfx_img = pygame.image.load("img/sfx_button.png").convert_alpha()
-NoSfx_img = pygame.image.load("img/NoSfx_button.png").convert_alpha()
-sfx_text_img = pygame.image.load("img/sfx_text.png").convert_alpha()
-music_img = pygame.image.load("img/music_text.png").convert_alpha()
-full_scren_img = pygame.image.load("img/full_screen.png").convert_alpha()
+soundon_img =  loadify("img/soundon_button.png") 
+soundoff_img =  loadify("img/soundoff_button.png") 
+back_img =  loadify("img/back_button.png") 
+sfx_img =  loadify("img/sfx_button.png") 
+NoSfx_img =  loadify("img/NoSfx_button.png") 
+sfx_text_img =  loadify("img/sfx_text.png") 
+music_img =  loadify("img/music_text.png") 
+full_scren_img =  loadify("img/full_screen.png") 
 
 #Victory
-victory_background_img=pygame.image.load("img/victory_bg.png")
-victory_mainmenu_img=pygame.image.load("img/victory_house.png").convert_alpha()
-victory_next_img=pygame.image.load("img/victory_next.png").convert_alpha()
-victory_settings_img=pygame.image.load("img/victory_settings.png").convert_alpha()
-stats_img=pygame.image.load("img/victory_stats.png").convert_alpha()
+victory_background_img= loadify("img/victory_bg.png")
+victory_mainmenu_img= loadify("img/victory_house.png") 
+victory_next_img= loadify("img/victory_next.png") 
+victory_settings_img= loadify("img/victory_settings.png") 
+stats_img= loadify("img/victory_stats.png") 
 
 #Stats
-#stats_background_img=pygame.image.load("img/stats_background.png")
-stats_return_img=pygame.image.load("img/stats_return.png").convert_alpha()
-stats_add_img=pygame.image.load("img/stats_add_button.png").convert_alpha()
-attack_stats_img=pygame.image.load("img/attack_stats.png").convert_alpha()
-defense_stats_img=pygame.image.load("img/defense_stats.png").convert_alpha()
-health_stats_img=pygame.image.load("img/health_stats.png").convert_alpha()
-pizza_stats1_img=pygame.image.load("img/pizza_stats1.png").convert_alpha()
-pizza_stats2_img=pygame.image.load("img/pizza_stats2.png").convert_alpha()
-pizza_stats3_img=pygame.image.load("img/pizza_stats3.png").convert_alpha()
+#stats_background_img= loadify("img/stats_background.png")
+stats_return_img= loadify("img/stats_return.png") 
+stats_add_img= loadify("img/stats_add_button.png") 
+attack_stats_img= loadify("img/attack_stats.png") 
+defense_stats_img= loadify("img/defense_stats.png") 
+health_stats_img= loadify("img/health_stats.png") 
+pizza_stats1_img= loadify("img/pizza_stats1.png") 
+pizza_stats2_img= loadify("img/pizza_stats2.png") 
+pizza_stats3_img= loadify("img/pizza_stats3.png") 
 
 #Game img
-comic_panel  = pygame.image.load("img/comic_panel.jpeg")
-background_img = pygame.image.load("img/background.jpg")
+comic_panel  =  loadify("img/comic_panel.jpeg")
+background_img =  loadify("img/background.jpg")
 
 #Victory
-victory_background_img=pygame.image.load("img/victory/victory_bg.png")
-victory_mainmenu_img=pygame.image.load("img/victory/victory_house.png").convert_alpha()
-victory_next_img=pygame.image.load("img/victory/victory_next.png").convert_alpha()
-victory_settings_img=pygame.image.load("img/victory/victory_settings.png").convert_alpha()
-stats_img=pygame.image.load("img/victory/victory_stats.png").convert_alpha()
+victory_background_img= loadify("img/victory/victory_bg.png")
+victory_mainmenu_img= loadify("img/victory/victory_house.png") 
+victory_next_img= loadify("img/victory/victory_next.png") 
+victory_settings_img= loadify("img/victory/victory_settings.png") 
+stats_img= loadify("img/victory/victory_stats.png") 
 
 #Stats
-#stats_background_img=pygame.image.load("img/stats_background.png")
-stats_return_img=pygame.image.load("img/victory/stats_return.png").convert_alpha()
-stats_add_img=pygame.image.load("img/victory/stats_add_button.png").convert_alpha()
-attack_stats_img=pygame.image.load("img/victory/attack_stats.png").convert_alpha()
-defense_stats_img=pygame.image.load("img/victory/defense_stats.png").convert_alpha()
-health_stats_img=pygame.image.load("img/victory/health_stats.png").convert_alpha()
-pizza_stats0_img=pygame.image.load("img/victory/pizza_stats0.png").convert_alpha()
-pizza_stats1_img=pygame.image.load("img/victory/pizza_stats1.png").convert_alpha()
-pizza_stats2_img=pygame.image.load("img/victory/pizza_stats2.png").convert_alpha()
-pizza_stats3_img=pygame.image.load("img/victory/pizza_stats3.png").convert_alpha()
+#stats_background_img= loadify("img/stats_background.png")
+stats_return_img= loadify("img/victory/stats_return.png") 
+stats_add_img= loadify("img/victory/stats_add_button.png") 
+attack_stats_img= loadify("img/victory/attack_stats.png") 
+defense_stats_img= loadify("img/victory/defense_stats.png") 
+health_stats_img= loadify("img/victory/health_stats.png") 
+pizza_stats0_img= loadify("img/victory/pizza_stats0.png") 
+pizza_stats1_img= loadify("img/victory/pizza_stats1.png") 
+pizza_stats2_img= loadify("img/victory/pizza_stats2.png") 
+pizza_stats3_img= loadify("img/victory/pizza_stats3.png") 
 
-cheezy_warning_img=pygame.image.load("img/victory/cheezy_warning.png").convert_alpha()
-maximum_level_warning_img=pygame.image.load("img/victory/maximum_level_warning.png").convert_alpha()
+cheezy_warning_img= loadify("img/victory/cheezy_warning.png") 
+maximum_level_warning_img= loadify("img/victory/maximum_level_warning.png") 
 
 #Pause Menu
-pause_img = pygame.image.load("img/pause_button.png").convert_alpha()
-restart_img = pygame.image.load("img/restart_button.png").convert_alpha()
-menu_img = pygame.image.load("img/menu_button.png").convert_alpha()
-resume_img = pygame.image.load("img/resume_button.png").convert_alpha()
-warning_img = pygame.image.load("img/warning.png").convert_alpha()
+pause_img =  loadify("img/pause_button.png") 
+restart_img =  loadify("img/restart_button.png") 
+menu_img =  loadify("img/menu_button.png") 
+resume_img =  loadify("img/resume_button.png") 
+warning_img =  loadify("img/warning.png") 
 warning_scaled_img=pygame.transform.scale(warning_img,(320,320))
-tick_img = pygame.image.load("img/tick_button.png").convert_alpha()
-x_img = pygame.image.load("img/x_button.png").convert_alpha()
-next_img = pygame.image.load("img/next_button.png").convert_alpha()
+tick_img =  loadify("img/tick_button.png") 
+x_img =  loadify("img/x_button.png") 
+next_img =  loadify("img/next_button.png") 
 
 #text
 title=menubutton.DrawMenu(320,0,title_img,6)
@@ -219,8 +223,8 @@ def reset_level():
 
 def game_over():
     global bg_scroll, screen_scroll
-    game_over_background_img=pygame.image.load("img/game_over_bg.png")
-    game_over_restart_img=pygame.image.load("img/game_over_restart.png").convert_alpha()
+    game_over_background_img= loadify("img/game_over_bg.png")
+    game_over_restart_img= loadify("img/game_over_restart.png") 
     game_over_restart_button = menubutton.DrawMenu(410,360,game_over_restart_img,2.5)
     screen.blit(game_over_background_img,(0,0))
     main_channel.pause()
@@ -506,7 +510,7 @@ while running:
             decoration_group.update(screen_scroll)
             threat_group.update(screen_scroll)
             exit_group.update(screen_scroll)
-            moving_platform_group.update(screen_scroll)
+            moving_platform_group.update()
 
             pepperoni_group.draw(screen)
             item_box_group.draw(screen)
@@ -595,4 +599,4 @@ while running:
 
     pygame.display.update() 
 
-pygame.quit()
+pygame.quit() 
