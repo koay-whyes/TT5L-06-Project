@@ -526,9 +526,8 @@ while running:
         if outro_index>=7:
             screen.blit(outro2_image,(0,0))
         if outro_index==12:
-            screen.blit(outro3_image, (0,0))
-            end_button.draw(screen)
-        elif end_button.draw(screen):
+            screen.blit(outro3_image, (0,0)) 
+        if end_button.draw(screen):
             outro=False
             victory=False
             credits=True
