@@ -490,16 +490,16 @@ class World():
                         player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
                         health_bar = HealthBar(10, 10, player.health, player.health)
                     elif tile == 34: # level 1 enemy
-                        enemy = Character('Broccoli', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy = Character('Broccoli', x * TILE_SIZE, y * TILE_SIZE, 1.65, 1.5, 10)
                         enemy_group.add(enemy)
                     elif tile == 35: # level 2 enemy
-                        enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 1.75, 15)
                         enemy_group.add(enemy)                        
                     elif tile == 26: # level 3 enemy
                         enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
                         enemy_group.add(enemy)
                     elif tile == 35: # final boss
-                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65*2, 4, 20)
                         enemy_group.add(enemy)  
                     elif tile == 27:#create ammo box
                          item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
