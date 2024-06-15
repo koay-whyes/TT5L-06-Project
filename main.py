@@ -4,8 +4,7 @@ from mainShoot import *
 import mainShoot as MS
 from pygame.locals import *
 from pygame import time
-import pymunk
-import pymunk.pygame_util
+
 
 pygame.init() 
 
@@ -220,6 +219,7 @@ level_complete=False
 start_time = pygame.time.get_ticks()
 warning_cheezy_visible = False
 maximum_level_visible=False
+outro=False
 back_to = None
 story_index = 0
 attack_level=0
@@ -465,11 +465,8 @@ while running:
         victory_channel.unpause()
         screen.blit(victory_background_img,(0,0))
         if victory_next_button.draw(screen):
-            player.rect.center=(100,100)
-            level_complete=False
             victory=False
-            main_channel.unpause()
-            victory_channel.pause()
+            outro=True
         if victory_mainmenu_button.draw(screen):
             main_menu=True
             victory=False
@@ -481,8 +478,11 @@ while running:
             victory_channel.pause()
             back_to = "victory"
             victory=True
-        if victory==False:
-            game()
+    elif outro==True:
+        screen.fill(BLACK)
+        text = font.render(story_texts[story_index], True, WHITE)
+        screen.blit(story_image, (0,0))
+        screen.blit(text, (40, 460))
     elif stats==True:
         victory_channel.pause()
         stats_channel.unpause()
