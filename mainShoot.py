@@ -505,7 +505,7 @@ class World():
                         enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 10)
                         enemy_group.add(enemy)
                     elif tile == 37: # final boss
-                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65*1.2, 2, 20)
                         enemy_group.add(enemy)  
                     elif tile == 27:#create ammo box
                          item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
