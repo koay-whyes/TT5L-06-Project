@@ -718,9 +718,20 @@ class PhysicsGame():
             image_y = self.body_body.position.y - self.body_image.get_height() / 2
             screen.blit(self.body_image, (image_x, image_y))
 
-            # NPC dialogue
-            """text = font.render(self.story_texts[self.story_index], True, BLACK)
-            screen.blit(text, (40, 400))"""
+
+            text1 = font.render("CREDITS", True, 'black')
+
+            text2 = font.render("Developed by students from group TT5L-06:  ", True, 'black')
+            text3 = font.render("Chew Jia Yi, Koay Yee Shuen, Ong Wan Ning", True, 'black')
+            text4 = font.render("For Mini IT Project, Foundation in IT, MMU", True, 'black')
+
+            text5 = font.render("Try to move Peppy around!", False, 'black')
+            
+            screen.blit(text1, (630, 40))
+            screen.blit(text2, (450, 70))
+            screen.blit(text3, (450, 100))
+            screen.blit(text4, (450, 130))
+            screen.blit(text5, (40, 380))
 
 
             # Flip the screen
