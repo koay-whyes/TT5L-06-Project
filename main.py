@@ -553,10 +553,7 @@ while running:
         attack_stats_button.draw(screen)
         defense_stats_button.draw(screen)
         health_stats_button.draw(screen)
-        pizza_stats3.draw(screen)
-        #pizza_attack_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
-        #pizza_defense_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
-        #pizza_health_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}      
+        pizza_stats3.draw(screen) 
         if stats_add_attack_button.draw(screen):
             if attack_level==3:
                 maximum_level_visible=True
