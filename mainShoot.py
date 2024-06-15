@@ -3,6 +3,8 @@ import os
 import random
 import csv
 import time
+import pymunk
+import pymunk.pygame_util
 
 pygame.init()
 
@@ -658,6 +660,167 @@ class Pepperoni(pygame.sprite.Sprite):
                     enemy.health -= 20
                     self.kill() # delete bullet 
 
+class PhysicsGame():
+    def __init__(self, width=1000, height=500):
+        self.width = width
+        self.height = height
+        self.screen = None
+        self.space = None
+        self.dt = 1 / 60
+        self.last_jump_time = 0
+        self.jump_cooldown = 2
+
+        self.body_body = None
+        self.body_shape = None
+        self.body_image = None
+
+        #story
+        self.story_texts = [ 
+
+            "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
+            "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
+            "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
+            "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
+            "And of course, yours!(PRESS NEXT TO START THE GAME)",
+        ]
+
+        self.story_index = 0
+        self.enter_key_down = False
+
+    def create_boundaries(self, space, width, height):
+        rects = [
+            [(width/2, height - 10/10), (width, 20/10)],
+            [(width/2, 10/10), (width, 20/10)],
+            [(10/10, height/2), (20/10, height)],
+            [(width - 10/10, height/2), (20/10, height)]
+        ]
+
+        for pos, size in rects:
+            body = pymunk.Body(body_type=pymunk.Body.STATIC)
+            body.position = pos
+            shape = pymunk.Poly.create_box(body, size)
+            shape.mass = 100000
+            shape.elasticity = 0.4
+            shape.friction = 0.8
+            space.add(body, shape)
+
+    def create_structure(self, space, width, height):
+        BROWN = (139, 69, 19, 100)
+        rects = [
+            [(600, height - 120), (40, 200), BROWN, 100],
+            [(900, height - 120), (40, 200), BROWN, 100],
+            [(750, height - 240), (340, 40), BROWN, 150]
+        ]
+
+        for pos, size, color, mass in rects:
+            body = pymunk.Body()
+            body.position = pos
+            shape = pymunk.Poly.create_box(body, size, radius=2)
+            shape.color = color
+            shape.mass = mass
+            shape.elasticity = 0.4
+            shape.friction = 0.4
+            space.add(body, shape)
+
+    def create_swinging_ball(self, space):
+        rotation_center_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        rotation_center_body.position = (300, 100)
+
+        body = pymunk.Body()
+        body.position = (300, 150)
+        line = pymunk.Segment(body, (0, 0), (200, 0), 5)
+        circle = pymunk.Circle(body, 40, (200, 0))
+        line.friction = 1
+        circle.friction = 1
+        line.mass = 8
+        circle.mass = 30
+        circle.elasticity = 0.95
+        circle.color = (128, 128, 128,0)
+        line.color = (128, 128, 128,0)
+        rotation_center_joint = pymunk.PinJoint(body, rotation_center_body, (0, 0), (0, 0))
+        space.add(circle, line, body, rotation_center_joint)
+
+    def run(self, screen, width, height):
+
+        run = True
+
+        self.space = pymunk.Space()
+        self.space.gravity = (0, 981)
+        self.last_jump_time = 0
+        self.jump_cooldown = 2  # 2 seconds
+
+        # Create the body
+        self.body_body = pymunk.Body(1, 1666)
+        self.body_body.position = (100, 100)
+
+        # Create the shape for the body
+        self.body_shape = pymunk.Circle(self.body_body, 50)
+        self.body_shape.elasticity = 0.2
+        self.body_shape.friction = 0.1
+        self.body_shape.color = (255, 255, 255, 0)
+        self.body_image = pygame.image.load("img/Peppy/Peppy_Fall_Frames/Peppy_Fall_Frame1.png")
+        self.body_image = pygame.transform.scale(self.body_image, (100, 100))
+
+        # Add the body and shape to the space
+        self.space.add(self.body_body, self.body_shape)
+
+        self.create_boundaries(self.space, width, height)
+        self.create_structure(self.space, width, height)
+        self.create_swinging_ball(self.space)
+
+        draw_options = pymunk.pygame_util.DrawOptions(screen)
+
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    break
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.enter_key_down = True
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_RETURN:
+                        self.enter_key_down = False
+
+            keys = pygame.key.get_pressed()
+
+            # Move the body left and right
+            if keys[pygame.K_a]:
+                self.body_body.velocity = (-200, self.body_body.velocity.y)
+            if keys[pygame.K_d]:
+                self.body_body.velocity = (200, self.body_body.velocity.y)
+
+            # Jump
+            current_time = pygame.time.get_ticks() / 1000
+            if keys[pygame.K_w] and abs(self.body_body.velocity.y) < 1 and current_time - self.last_jump_time > self.jump_cooldown:
+                self.body_body.apply_impulse_at_local_point((0, 1000), (0, 0))
+                self.last_jump_time = current_time
+
+            if self.enter_key_down:
+                self.story_index = (self.story_index + 1) % len(self.story_texts)
+
+
+            # Clear the screen
+            screen.fill(WHITE)
+
+            # Draw the Pymunk shapes
+            self.space.debug_draw(draw_options)
+            image_x = self.body_body.position.x - self.body_image.get_width() / 2
+            image_y = self.body_body.position.y - self.body_image.get_height() / 2
+            screen.blit(self.body_image, (image_x, image_y))
+
+            # NPC dialogue
+            text = font.render(self.story_texts[self.story_index], True, BLACK)
+            screen.blit(text, (40, 400))
+
+
+            # Flip the screen
+            pygame.display.flip()
+
+            self.space.step(self.dt)
+            clock.tick(FPS)
+
+        pygame.quit()
 
 # create sprite groups
 enemy_group = pygame.sprite.Group()

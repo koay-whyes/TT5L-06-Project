@@ -4,6 +4,8 @@ from mainShoot import *
 import mainShoot as MS
 from pygame.locals import *
 from pygame import time
+import pymunk
+import pymunk.pygame_util
 
 pygame.init() 
 
@@ -26,17 +28,20 @@ pygame.display.set_caption("Peppy the Pizza") # display on top of the window
 
 # set framerate
 clock = pygame.time.Clock() 
-FPS = 120
+FPS = 60
 # define game variables
+screen_scroll = 0
+bg_scroll = 0
+level = 1
 level = 1
 
 
 #music
-MainMusic = pygame.mixer.Sound("bgm.mp3") 
-StoryMusic = pygame.mixer.Sound("sad_bgm.mp3")
-GameOverMusic = pygame.mixer.Sound("game_over_bgm.mp3")
-VictoryMusic= pygame.mixer.Sound("victory_bgm.mp3") 
-StatsMusic=pygame.mixer.Sound("stats_bgm.mp3")
+MainMusic = pygame.mixer.Sound("bgm/bgm.mp3") 
+StoryMusic = pygame.mixer.Sound("bgm/sad_bgm.mp3")
+GameOverMusic = pygame.mixer.Sound("bgm/game_over_bgm.mp3")
+VictoryMusic= pygame.mixer.Sound("bgm/victory_bgm.mp3") 
+StatsMusic=pygame.mixer.Sound("bgm/stats_bgm.mp3")
 
 #sound effect
 jump_fx = pygame.mixer.Sound("sound/jump.mp3")
@@ -64,21 +69,12 @@ def loadify(imgname):
     return  pygame.image.load(imgname).convert_alpha()
 
 # load img
-bg_imgs = {
-    1: loadify("img/level_1.png") ,
-    2: loadify("img/level_2.png") ,
-    3: loadify("img/level_1.png") 
-}
-
+bg_img = pygame.image.load("img/bg.png").convert_alpha()
 
 def draw_bg():
     screen.fill(BG)
     # scrolling
-    bg_img = bg_imgs.get(level % len(bg_imgs), bg_imgs[1])
-    width =  bg_img.get_width()
-    for x in range(16):
-    # bg_img = loadify('img/level_1.png') 
-        screen.blit(bg_img, ((x * width) - bg_scroll, 0))   
+    screen.blit(bg_img, (0 - bg_scroll, 0))   
 
 
 #Main Menu images
@@ -107,7 +103,7 @@ stats_img=loadify("img/victory_stats.png")
 
 #Game OVer
 game_over_background_img=loadify("img/game_over_bg.png")
-game_over_restart_img=loadify("img/game_over_restart.png") 
+game_over_retry_img=loadify("img/game_over_retry.png") 
 
 #Stats
 #stats_background_img=loadify("img/stats_background.png")
@@ -147,35 +143,41 @@ maximum_level_warning_img=loadify("img/victory/maximum_level_warning.png")
 
 #Pause Menu
 pause_img = loadify("img/pause_button.png") 
-restart_img = loadify("img/restart_button.png") 
-menu_img = loadify("img/menu_button.png") 
-resume_img = loadify("img/resume_button.png") 
-warning_img = loadify("img/warning.png") 
+retry_img = loadify("img/pause/retry_button.png") 
+menu_img = loadify("img/pause/menu_button.png") 
+resume_img = loadify("img/pause/resume_button.png") 
+warning_img = loadify("img/pause/warning.png") 
 warning_scaled_img=pygame.transform.scale(warning_img,(320,320))
-tick_img = loadify("img/tick_button.png") 
-x_img = loadify("img/x_button.png") 
+tick_img = loadify("img/pause/tick_button.png") 
+x_img = loadify("img/pause/x_button.png") 
 next_img = loadify("img/next_button.png") 
+stats_pause_img=loadify("img/pause/stats_pause.png")
 
 #text
 title=menubutton.DrawMenu(320,0,title_img,6)
 sfx_text=menubutton.DrawMenu(50,100,sfx_text_img,5)
 music_text=menubutton.DrawMenu(50,250,music_img,5)
 
-#create button
+#Main Menu Button
 play_button=menubutton.DrawMenu(440,200,play_img,2.5)
 settings_button=menubutton.DrawMenu(440,280,settings_img,2.5)
 exit_button=menubutton.DrawMenu(440,360,exit_img,2.5)
+
+#settings Button
 sound_button=menubutton.DrawMenu(350,260,soundon_img,3)
 back_button=menubutton.DrawMenu(600,280,back_img,2.5)
 sfx_button=menubutton.DrawMenu(350,100,sfx_img,4.5)
+full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
+
+#Pause Button
 pause_button=menubutton.DrawMenu(940,0,pause_img,2)
-restart_button=menubutton.DrawMenu(440,100,restart_img,2.5)
-menu_button=menubutton.DrawMenu(100,100,menu_img,2.5)
-resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
+retry_button=menubutton.DrawMenu(240,100,retry_img,2.5)
+resume_button=menubutton.DrawMenu(540,100,resume_img,2.5)
+menu_button=menubutton.DrawMenu(240,250,menu_img,2.5)
+stats_pause_button=menubutton.DrawMenu(540,250,stats_pause_img,2.5)
 tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
 next_button=menubutton.DrawMenu(900,380,next_img,1.5)
-full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
 
 #Victory Menu Button
 victory_mainmenu_button=menubutton.DrawMenu(620,350,victory_mainmenu_img,1.5)
@@ -184,7 +186,7 @@ victory_next_button= menubutton.DrawMenu(620,120,victory_next_img,3.0)
 stats_button=menubutton.DrawMenu(620,210,stats_img,3.0)
 
 #game over button
-game_over_restart_button = menubutton.DrawMenu(410,360,game_over_restart_img,2.5)
+game_over_retry_button = menubutton.DrawMenu(410,360,game_over_retry_img,2.5)
 
 #Stats Menu button
 stats_return_button=menubutton.DrawMenu(800,380,stats_return_img,2.5)
@@ -201,68 +203,6 @@ pizza_stats0=menubutton.DrawMenu(350,150,pizza_stats0_img,10.0)
 pizza_stats1=menubutton.DrawMenu(350,150,pizza_stats1_img,10.0)
 pizza_stats2=menubutton.DrawMenu(350,150,pizza_stats2_img,10.0)
 pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
-
-def reset_level():
-    # Load new level data
-    global player,enemy,health_bar
-    # Reset player and enemy health
-    player.health = 120
-    for enemy in enemy_group:
-        enemy.health = 120
-    player.ammo = 20
-    enemy_group.empty()
-    item_box_group.empty()
-    decoration_group.empty()
-    threat_group.empty()
-    exit_group.empty()
-    pepperoni_group.empty()
-    MS.world_data.clear()
-    MS.world.obstacle_list.clear()
-    MS.screen_scroll = 0
-    MS.bg_scroll =0
-    MS.player.rect.center = (100,100)
-    for enemy in enemy_group:
-        enemy.rect.center = (enemy.rect.centerx,enemy.rect.centery)
-    #create empty tile list
-    data = []
-    for row in range(ROWS):
-        r = [-1] * COLS
-        data.append(r)
-   
-    return data
-
-
-
-
-'''
-#reset level
-def reset_level():
-    global player,enemy,health_bar,world_data
-    enemy_group.empty()
-    item_box_group.empty()
-    decoration_group.empty()
-    threat_group.empty()
-    exit_group.empty()
-    pepperoni_group.empty()
-    MS.player.health = 120
-    MS.player.ammo = 20 
-    MS.bg_scroll=0
-    MS.screen_scroll=0
-    #create empty tile list
-    world_data = []
-    for row in range(ROWS):
-        r = [-1] * COLS
-        world_data.append(r)
-    #load in level data and create world
-    with open(f'level{level}_data.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for x, row in enumerate(reader):
-            for y, tile in enumerate(row):
-                world_data[x][y] = int(tile)
-    world = World()
-    player, health_bar = world.process_data(world_data, level)
-    MS.player.rect.center = (player.rect.centerx,player.rect.centery)
-'''
 
 
 settings=False
@@ -298,32 +238,22 @@ story_texts = [
 ]
 
 def restart():
-    global game_over
+    global game_over,start_game,bg_scroll,screen_scroll
+    screen.fill(BLACK)
     for enemy in enemy_group:
         enemy.health = 120
-        enemy.rect.center = (enemy.rect.centerx,enemy.rect.centery)
     player.ammo = 20
-    MS.world_data.clear()
-    MS.world.obstacle_list.clear()
-    enemy_group.empty()
-    enemy.ai(screen_scroll)
-    enemy.update()
-    enemy.draw()
-    pepperoni_group.empty()
-    MS.screen_scroll=0
     player.alive=True
     player.health=120
     player.rect.center=(100,100)
-    player.health = 120
-
-    MS.bg_scroll =0
-        
+    player.ammo = 20
+    start_game=True
+    game_over = False
+    pygame.display.flip()
 
 #Game
 def game():
-        global pause_menu,main_menu,settings,warning,victory,start_game,level_complete,game_over,back_to,stats
-        screen_scroll=MS.screen_scroll
-        bg_scroll=MS.bg_scroll
+        global pause_menu,main_menu,settings,warning,victory,start_game,level_complete,game_over,back_to,stats,screen_scroll,bg_scroll
 
         if not pause_menu:
             # update background
@@ -339,9 +269,6 @@ def game():
             #show cheezy
             draw_text(f'x{MS.player.cheezy}', font, WOOD_BROWN, 45, 70)
             screen.blit(cheezy_img, (10, 65))
-            # for x in range(player.cheezy):
-            #   screen.blit(cheezy_img, (100 + (x * 25), 65))
-
 
             for enemy in enemy_group:
                 # takes screen scroll as value
@@ -389,11 +316,11 @@ def game():
                     bg_scroll = 0
                 elif bg_scroll > max_scroll:
                     bg_scroll = max_scroll
-            elif player.alive==False:
+                if level_complete==True:
+                    victory=True
+            else:
                 game_over=True
-            if level_complete==True:
-                victory=True
-
+                screen_scroll=0
         #Pause Menu
         if pause_button.draw(screen):
             pause_menu = True
@@ -401,13 +328,17 @@ def game():
             screen.fill(WOOD_BROWN)
             #Continue
             if resume_button.draw(screen):
+                main_channel.unpause()
                 pause_menu=False
             #Restart Level
-            if restart_button.draw(screen):
+            if retry_button.draw(screen):
                 pause_menu=False
                 restart()
             if menu_button.draw(screen):
                 warning=True
+            if stats_pause_button.draw(screen):
+                stats=True
+                pause_menu=False
             if warning == True: 
                 screen.blit(warning_scaled_img, (370,90))
                 if tick_button.draw(screen):
@@ -512,8 +443,6 @@ while running:
                 else:
                     sfx_button.update_image(NoSfx_img,4.5)
                     pygame.mixer.Channel(0).set_volume(0)
-        #if full_screen_button.draw(screen):
-            #screen=pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
     elif story==True:
         screen.fill(BLACK)
@@ -552,9 +481,6 @@ while running:
             victory_channel.pause()
             back_to = "victory"
             victory=True
-        if stats_button.draw(screen):
-            stats=True
-            victory=False
         if victory==False:
             game()
     elif stats==True:
@@ -562,6 +488,8 @@ while running:
         stats_channel.unpause()
         main_channel.pause()
         screen.fill((255, 224, 130))
+        draw_text(f'x{MS.player.cheezy}', font, WOOD_BROWN, 45, 70)
+        screen.blit(cheezy_img, (10, 65))        
         attack_stats_button.draw(screen)
         defense_stats_button.draw(screen)
         health_stats_button.draw(screen)
@@ -585,7 +513,7 @@ while running:
                 else:
                     warning_cheezy_visible=True
                     start_time = pygame.time.get_ticks()
-        if stats_add_defense_button.draw(screen):
+        elif stats_add_defense_button.draw(screen):
             if MS.defense_level==3:
                 maximum_level_visible=True
                 start_time = pygame.time.get_ticks()
@@ -598,7 +526,7 @@ while running:
                 else:
                     warning_cheezy_visible=True
                     start_time = pygame.time.get_ticks()
-        if stats_add_health_button.draw(screen):
+        elif stats_add_health_button.draw(screen):
             if health_level==3:
                 maximum_level_visible=True
                 start_time = pygame.time.get_ticks()
@@ -616,11 +544,11 @@ while running:
   
         if attack_level in pizza_attack_stats_dict:
             pizza_attack_stats_dict[attack_level].draw(screen)
-        if defense_level in pizza_defense_stats_dict:
+        elif defense_level in pizza_defense_stats_dict:
             pizza_defense_stats_dict[defense_level].draw(screen)
             if defense_level >= 4:
                 pizza_stats3.draw(screen)
-        if health_level in pizza_health_stats_dict:
+        elif health_level in pizza_health_stats_dict:
             pizza_health_stats_dict[health_level].draw(screen)
             if health_level >= 4:
                 pizza_stats3.draw(screen)
@@ -628,7 +556,7 @@ while running:
             if (attack_level or defense_level or health_level)>= 4:
                 pizza_stats3.draw(screen)
         if stats_return_button.draw(screen):
-            victory=True
+            pause_menu=True
             stats=False
             stats_channel.pause()
         if warning_cheezy_visible:
@@ -644,13 +572,10 @@ while running:
         screen.blit(game_over_background_img,(0,0))
         main_channel.pause()
         game_over_channel.unpause()
-        if game_over_restart_button.draw(screen):
+        start_game=False
+        if game_over_retry_button.draw(screen):
             time.wait(500)
-            #screen_scroll=0
             game_over=False
-           # player.alive=True
-            #player.health=120
-            #player.rect.center=(100,100)
             restart()
             main_channel.unpause()
             game_over_channel.pause()
