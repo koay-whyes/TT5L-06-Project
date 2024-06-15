@@ -4,7 +4,8 @@ from mainShoot import *
 import mainShoot as MS
 from pygame.locals import *
 from pygame import time
-
+import pymunk
+import pymunk.pygame_util
 
 pygame.init() 
 
@@ -115,9 +116,11 @@ pizza_stats1_img=loadify("img/pizza_stats1.png")
 pizza_stats2_img=loadify("img/pizza_stats2.png") 
 pizza_stats3_img=loadify("img/pizza_stats3.png") 
 
-#Game img
+#Story img
 story_image = loadify("img/story/story.png")
-
+outro1_image = loadify("img/story/outro1.png")
+outro2_image = loadify("img/story/outro2.png")
+end_img=loadify("img/end_button.png")
 
 #Victory
 victory_background_img=loadify("img/victory/victory_bg.png")
@@ -203,6 +206,8 @@ pizza_stats1=menubutton.DrawMenu(350,150,pizza_stats1_img,10.0)
 pizza_stats2=menubutton.DrawMenu(350,150,pizza_stats2_img,10.0)
 pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
 
+#Ending button
+end_button=menubutton.DrawMenu(900,380,end_img,1.5)
 
 settings=False
 main_menu=True
@@ -220,7 +225,9 @@ start_time = pygame.time.get_ticks()
 warning_cheezy_visible = False
 maximum_level_visible=False
 outro=False
+credits=False
 back_to = None
+outro_index=0
 story_index = 0
 attack_level=0
 health_level=0
@@ -235,6 +242,34 @@ story_texts = [
     "But Peppy will need the help of the cheezys to stand a chance to defeat the Pineapple.",
 
     "Can you help Peppy find out what happened?(PRESS NEXT TO START)",
+]
+
+outro_texts= [
+    "Pineapple:(coughing) You... you did it, Peppy. You've defeated me.",
+
+    "Player: Why, Pineapple? Why did you turn evil?",
+
+    "Pineapple: ...I was once a happy fruit. But everything changed because of one man... Willie.",
+
+    "Player: Willie?",
+
+    "Pineapple: Yes, Willie... He was the one who picked me out of the pizza.", 
+
+    "Pineapple: For too long, we pineapples have been scorned and mistreated by the human race.",
+    
+    "Pineapple: They treat us like garbage!",
+
+    "Willie: All pineapples belong in the trash!",
+
+    "Pineapple: That's why we fought back, why we sought to eliminate all other toppings!",
+
+    "Pineapple:Only then will those puny humans recognize the respect we deserve.",
+
+    "Pineapple: (weakly) I wanted... I wanted us to be... appreciated...",
+
+    "Player: (softly) It's not too late, Pineapple. We can find a way to change things.",
+
+    "Pineapple: (fading) Too late... for me..."
 ]
 
 def restart():
@@ -375,6 +410,7 @@ while running:
                 running = False 
             elif event.key == pygame.K_RETURN:
                 story_index = (story_index + 1) % len(story_texts)
+                outro_index= (outro_index +1) % len(outro_texts)
 
 
             # dash
@@ -480,9 +516,21 @@ while running:
             victory=True
     elif outro==True:
         screen.fill(BLACK)
-        text = font.render(story_texts[story_index], True, WHITE)
-        screen.blit(story_image, (0,0))
-        screen.blit(text, (40, 460))
+        text = font.render(outro_texts[outro_index], True, WHITE)
+        screen.blit(text, (40, 460))        
+        if outro_index>=4:
+            screen.blit(outro1_image, (0,0))
+        if outro_index>=7:
+            screen.blit(outro2_image,(0,0))
+        if outro_index==12:
+            end_button.draw(screen)
+        elif end_button.draw(screen):
+            outro=False
+            victory=False
+            credits=True
+    elif credits==True:
+        physics=PhysicsGame()      
+        physics.run(screen, WIDTH, HEIGHT)
     elif stats==True:
         victory_channel.pause()
         stats_channel.unpause()
