@@ -20,7 +20,7 @@ class DrawMenu():
             if pygame.mouse.get_pressed()[0]==1 and self.clicked==False:
                 self.clicked=True
                 action = True
-                pygame.mixer.Channel(0).play(pygame.mixer.Sound('pressbutton.mp3'))
+                pygame.mixer.Channel(0).play(pygame.mixer.Sound('sound/pressbutton.mp3'))
 
         if pygame.mouse.get_pressed()[0] == 0:
             self.clicked= False

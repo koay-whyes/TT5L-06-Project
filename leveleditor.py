@@ -23,18 +23,14 @@ TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 36
 current_tile = 0
 level = 0
-COLS = 200
+COLS = 640
 scroll_left = False
 scroll_right = False
 scroll = 0
 scroll_speed = 1
 
 # load images
-background_images = {
-    1: pygame.image.load("img/level_1.png").convert_alpha(),
-    2: pygame.image.load("img/level_2.png").convert_alpha(),
-    3: pygame.image.load("img/level_1.png").convert_alpha()
-}
+background_image = pygame.image.load("img/bg.png").convert_alpha()
 # store images in a list
 img_list = []
 for x in range(TILE_TYPES):
@@ -79,13 +75,9 @@ def draw_text(text, font, text_col, x, y):
 # drawing background
 def draw_background():
     screen.fill(YELLOW)
-    background_img = background_images.get(level % len(background_images), background_images[1])
-    width = background_img.get_width()
-    # loop background image
-    for x in range(5):
-        # background needs to move left while scrolling right and vice versa
-        # a value times with scroll to change scrolling speed
-        screen.blit(background_img, ((x * width) -scroll, 0))
+    # background needs to move left while scrolling right and vice versa
+    # a value times with scroll to change scrolling speed
+    screen.blit(background_image, (0 -scroll, 0))
 
 # drawing grid
 def draw_grid():
