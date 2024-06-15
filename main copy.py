@@ -28,6 +28,9 @@ pygame.display.set_caption("Peppy the Pizza") # display on top of the window
 clock = pygame.time.Clock() 
 FPS = 60
 # define game variables
+screen_scroll = 0
+bg_scroll = 0
+level = 1
 level = 1
 
 
@@ -64,21 +67,12 @@ def loadify(imgname):
     return  pygame.image.load(imgname).convert_alpha()
 
 # load img
-bg_imgs = {
-    1: loadify("img/level_1.png") ,
-    2: loadify("img/level_2.png") ,
-    3: loadify("img/level_1.png") 
-}
-
+bg_img = pygame.image.load("img/bg.png").convert_alpha()
 
 def draw_bg():
     screen.fill(BG)
     # scrolling
-    bg_img = bg_imgs.get(level % len(bg_imgs), bg_imgs[1])
-    width =  bg_img.get_width()
-    for x in range(16):
-    # bg_img = loadify('img/level_1.png') 
-        screen.blit(bg_img, ((x * width) - bg_scroll, 0))   
+    screen.blit(bg_img, (0 - bg_scroll, 0))   
 
 
 #Main Menu images
@@ -175,10 +169,10 @@ full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
 
 #Pause Button
 pause_button=menubutton.DrawMenu(940,0,pause_img,2)
-restart_button=menubutton.DrawMenu(440,100,restart_img,2.5)
-menu_button=menubutton.DrawMenu(100,100,menu_img,2.5)
-stats_pause_button=menubutton.DrawMenu(900,380,stats_pause_img,1.5)
-resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
+restart_button=menubutton.DrawMenu(240,100,restart_img,2.5)
+resume_button=menubutton.DrawMenu(540,100,resume_img,2.5)
+menu_button=menubutton.DrawMenu(240,250,menu_img,2.5)
+stats_pause_button=menubutton.DrawMenu(540,250,stats_pause_img,2.5)
 tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
 next_button=menubutton.DrawMenu(900,380,next_img,1.5)
@@ -306,49 +300,22 @@ story_texts = [
 ]
 
 def restart():
-    global game_over,start_game
+    global game_over,start_game,bg_scroll,screen_scroll
+    screen.fill(BLACK)
     for enemy in enemy_group:
         enemy.health = 120
-        enemy.rect.center = (enemy.rect.centerx,enemy.rect.centery)
-        enemy.ai(screen_scroll)
-        enemy.update()
-        enemy.draw()
     player.ammo = 20
-    MS.screen_scroll=0
     player.alive=True
     player.health=120
     player.rect.center=(100,100)
-    player.health = 120
-    MS.bg_scroll =0
     player.ammo = 20
-    enemy_group.empty()
-    item_box_group.empty()
-    decoration_group.empty()
-    threat_group.empty()
-    exit_group.empty()
-    pepperoni_group.empty()
-    # Load new level data
-    MS.world_data.clear()
-    MS.world.obstacle_list.clear()
-    world_data = []
-    for row in range(ROWS):
-        r = [-1] * COLS
-        world_data.append(r)
-    with open(f'level1_data.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for x, row in enumerate (reader):
-            for y, tile in enumerate (row):
-                    world_data[x][y] = int(tile)
-    world.process_data(world_data, level)
-    MS.player.rect.center = (player.rect.centerx, player.rect.centery)
     start_game=True
-        
+    game_over = False
+    pygame.display.flip()
 
 #Game
 def game():
-        global pause_menu,main_menu,settings,warning,victory,start_game,level_complete,game_over,back_to,stats
-        screen_scroll=MS.screen_scroll
-        bg_scroll=MS.bg_scroll
+        global pause_menu,main_menu,settings,warning,victory,start_game,level_complete,game_over,back_to,stats,screen_scroll,bg_scroll
 
         if not pause_menu:
             # update background
@@ -414,11 +381,11 @@ def game():
                     bg_scroll = 0
                 elif bg_scroll > max_scroll:
                     bg_scroll = max_scroll
-            elif player.alive==False:
+                if level_complete==True:
+                    victory=True
+            else:
                 game_over=True
-            if level_complete==True:
-                victory=True
-
+                screen_scroll=0
         #Pause Menu
         if pause_button.draw(screen):
             pause_menu = True
