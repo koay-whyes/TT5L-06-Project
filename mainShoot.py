@@ -24,7 +24,7 @@ SCROLL_THRESH = 400
 ROWS = 20
 COLS = 640
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 37
+TILE_TYPES = 39
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
@@ -79,6 +79,8 @@ oil_img = loadify('img/Interactive Elements/tiles/23.png')
 sink_tile_img = loadify('img/Interactive Elements/tiles/33.png') 
 sink_tile_img = pygame.transform.scale(sink_tile_img, (TILE_SIZE, TILE_SIZE))
 oil_tile_img = loadify('img/Interactive Elements/tiles/24.png') 
+cheezy_board_img = loadify('img/Interactive Elements/tiles/38.png') 
+cheezy_board_img = pygame.transform.scale(cheezy_board_img, (100, 100))
 
 item_boxes = {
     'Health'	: health_box_img,
@@ -90,7 +92,8 @@ decorative_items = {
     'Mug' : mug_img,
     'Pan' : pan_img,
     'Towel' : towel_img,
-    'Dash Board' : dash_board_img
+    'Dash Board' : dash_board_img,
+    'Cheezy Board' : cheezy_board_img
 }
 threat_items = {
     'Sink' : sink_img,
@@ -474,6 +477,9 @@ class World():
                     elif tile == 29:
                           decoration = Decoration("Cutting Board", x * TILE_SIZE, y * TILE_SIZE)
                           decoration_group.add(decoration)
+                    elif tile == 38:
+                          decoration = Decoration("Cheezy Board", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
                     elif tile == 36:
                           decoration = Decoration("Dash Board", x * TILE_SIZE, y * TILE_SIZE)
                           decoration_group.add(decoration)
@@ -490,16 +496,16 @@ class World():
                         player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
                         health_bar = HealthBar(10, 10, player.health, player.health)
                     elif tile == 34: # level 1 enemy
-                        enemy = Character('Broccoli', x * TILE_SIZE, y * TILE_SIZE, 1.65, 1.5, 10)
+                        enemy = Character('Broccoli', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 3)
                         enemy_group.add(enemy)
                     elif tile == 35: # level 2 enemy
-                        enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 1.75, 15)
+                        enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 7)
                         enemy_group.add(enemy)                        
                     elif tile == 26: # level 3 enemy
-                        enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
+                        enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 10)
                         enemy_group.add(enemy)
-                    elif tile == 35: # final boss
-                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65*2, 4, 20)
+                    elif tile == 37: # final boss
+                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
                         enemy_group.add(enemy)  
                     elif tile == 27:#create ammo box
                          item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
@@ -562,7 +568,6 @@ class Exit(pygame.sprite.Sprite):
 
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
-
 
 class ItemBox(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
@@ -662,7 +667,6 @@ class Pepperoni(pygame.sprite.Sprite):
         for enemy in enemy_group:
             if pygame.sprite.spritecollide(enemy, pepperoni_group, False, custom_collision):
                 if enemy.alive:
-                    
                     enemy.health -= 25
                     self.kill() # delete bullet 
 
