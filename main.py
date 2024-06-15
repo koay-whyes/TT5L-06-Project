@@ -66,21 +66,14 @@ shoot = False
 dash = False
 
 # load img
-bg_imgs = {
-    1:  loadify("img/level_1.png") ,
-    2:  loadify("img/level_2.png") ,
-    3:  loadify("img/level_1.png") 
-}
+bg_img = pygame.image.load("img/bg.png").convert_alpha()
 
 
 def draw_bg():
     screen.fill(BG)
     # scrolling
-    bg_img = bg_imgs.get(level % len(bg_imgs), bg_imgs[1])
-    width =  bg_img.get_width()
-    for x in range(16):
     # bg_img =  loadify('img/level_1.png') 
-        screen.blit(bg_img, ((x * width) - bg_scroll, 0))   
+    screen.blit(bg_img, (0 - bg_scroll, 0))   
 
 
 #Main Menu images
