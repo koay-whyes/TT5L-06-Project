@@ -3,6 +3,8 @@ import os
 import random
 import csv
 import time
+import pymunk
+import pymunk.pygame_util
 
 pygame.init()
 
@@ -29,7 +31,8 @@ MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
 level = 1
-
+defense_level=0
+level_complete=False
 
 # define player action variables
 moving_left = False
@@ -145,7 +148,7 @@ class Character(pygame.sprite.Sprite):
         self.start_ammo = ammo
         self.shoot_cooldown = 0
         self.cheezy = 0
-        self.health = 100 # self.health = health for diff health for peppy and enemy
+        self.health = 120 # self.health = health for diff health for peppy and enemy
         self.max_health = self.health # for health bar
         self.direction = 1
         self.flip = False
@@ -322,8 +325,8 @@ class Character(pygame.sprite.Sprite):
             self.health = 0
 
         # check for collision with pizza box (exit)
-        level_complete = False
-        if pygame.sprite.spritecollide(player, exit_group, False):
+        global level_complete
+        if pygame.sprite.spritecollide(self, exit_group, False):
             level_complete = True
             pizzabox_fx.play()
         
@@ -409,6 +412,12 @@ class Character(pygame.sprite.Sprite):
 
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
+
+    def check_collision(self, spriteGroup):
+        if pygame.sprite.spritecollide(self, spriteGroup, False):
+            # handle collision logic here
+            self.health -= 5  # example: reduce player health by 10
+            print("Collision detected!")
 
 class MovingPlatform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -516,7 +525,7 @@ class World():
                     elif tile == 21:#create cheezy
                           cheezy = ItemBox('Cheezy', x * TILE_SIZE, y * TILE_SIZE)
                           decoration_group.add(cheezy)
-                    elif tile == 19:#create exit
+                    elif tile == 19:#create exit (pizza box)
                         exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
                         exit_group.add(exit)
 
@@ -660,17 +669,179 @@ class Pepperoni(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, pepperoni_group, False, custom_collision):
             if player.alive:
-                player.health -= 5
-                self.kill() # delete bullet 
+                damage_amounts = {0: 10, 1: 8, 2: 6, 3: 4}
+                player.health -= damage_amounts.get(defense_level, 10)
+                self.kill()  # delete bullet
        
         
         for enemy in enemy_group:
             if pygame.sprite.spritecollide(enemy, pepperoni_group, False, custom_collision):
                 if enemy.alive:
-                    enemy.health -= 25
+                    
+                    enemy.health -= 20
                     self.kill() # delete bullet 
 
+class PhysicsGame():
+    def __init__(self, width=1000, height=500):
+        self.width = width
+        self.height = height
+        self.screen = None
+        self.space = None
+        self.dt = 1 / 60
+        self.last_jump_time = 0
+        self.jump_cooldown = 2
 
+        self.body_body = None
+        self.body_shape = None
+        self.body_image = None
+
+        #story
+
+
+    def create_boundaries(self, space, width, height):
+        rects = [
+            [(width/2, height - 10/10), (width, 20/10)],
+            [(width/2, 10/10), (width, 20/10)],
+            [(10/10, height/2), (20/10, height)],
+            [(width - 10/10, height/2), (20/10, height)]
+        ]
+
+        for pos, size in rects:
+            body = pymunk.Body(body_type=pymunk.Body.STATIC)
+            body.position = pos
+            shape = pymunk.Poly.create_box(body, size)
+            shape.mass = 100000
+            shape.elasticity = 0.4
+            shape.friction = 0.8
+            space.add(body, shape)
+
+    def create_structure(self, space, width, height):
+        BROWN = (139, 69, 19, 100)
+        rects = [
+            [(600, height - 120), (40, 200), BROWN, 100],
+            [(900, height - 120), (40, 200), BROWN, 100],
+            [(750, height - 240), (340, 40), BROWN, 150]
+        ]
+
+        for pos, size, color, mass in rects:
+            body = pymunk.Body()
+            body.position = pos
+            shape = pymunk.Poly.create_box(body, size, radius=2)
+            shape.color = color
+            shape.mass = mass
+            shape.elasticity = 0.4
+            shape.friction = 0.4
+            space.add(body, shape)
+
+    def create_swinging_ball(self, space):
+        rotation_center_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        rotation_center_body.position = (300, 100)
+
+        body = pymunk.Body()
+        body.position = (300, 150)
+        line = pymunk.Segment(body, (0, 0), (200, 0), 5)
+        circle = pymunk.Circle(body, 40, (200, 0))
+        line.friction = 1
+        circle.friction = 1
+        line.mass = 8
+        circle.mass = 30
+        circle.elasticity = 0.95
+        circle.color = (128, 128, 128,0)
+        line.color = (128, 128, 128,0)
+        rotation_center_joint = pymunk.PinJoint(body, rotation_center_body, (0, 0), (0, 0))
+        space.add(circle, line, body, rotation_center_joint)
+
+    def run(self, screen, width, height):
+
+        run = True
+
+        self.space = pymunk.Space()
+        self.space.gravity = (0, 981)
+        self.last_jump_time = 0
+        self.jump_cooldown = 2  # 2 seconds
+
+        # Create the body
+        self.body_body = pymunk.Body(1, 1666)
+        self.body_body.position = (100, 100)
+
+        # Create the shape for the body
+        self.body_shape = pymunk.Circle(self.body_body, 50)
+        self.body_shape.elasticity = 0.2
+        self.body_shape.friction = 0.1
+        self.body_shape.color = (255, 255, 255, 0)
+        self.body_image = pygame.image.load("img/Peppy/Peppy_Fall_Frames/Peppy_Fall_Frame1.png")
+        self.body_image = pygame.transform.scale(self.body_image, (100, 100))
+
+        # Add the body and shape to the space
+        self.space.add(self.body_body, self.body_shape)
+
+        self.create_boundaries(self.space, width, height)
+        self.create_structure(self.space, width, height)
+        self.create_swinging_ball(self.space)
+
+        draw_options = pymunk.pygame_util.DrawOptions(screen)
+
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    break
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.enter_key_down = True
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_RETURN:
+                        self.enter_key_down = False
+
+            keys = pygame.key.get_pressed()
+
+            # Move the body left and right
+            if keys[pygame.K_a]:
+                self.body_body.velocity = (-200, self.body_body.velocity.y)
+            if keys[pygame.K_d]:
+                self.body_body.velocity = (200, self.body_body.velocity.y)
+
+            # Jump
+            current_time = pygame.time.get_ticks() / 1000
+            if keys[pygame.K_w] and abs(self.body_body.velocity.y) < 1 and current_time - self.last_jump_time > self.jump_cooldown:
+                self.body_body.apply_impulse_at_local_point((0, 1000), (0, 0))
+                self.last_jump_time = current_time
+
+
+
+
+            # Clear the screen
+            screen.fill(WHITE)
+
+            # Draw the Pymunk shapes
+            self.space.debug_draw(draw_options)
+            image_x = self.body_body.position.x - self.body_image.get_width() / 2
+            image_y = self.body_body.position.y - self.body_image.get_height() / 2
+            screen.blit(self.body_image, (image_x, image_y))
+
+
+            text1 = font.render("CREDITS", True, 'black')
+
+            text2 = font.render("Developed by students from group TT5L-06:  ", True, 'black')
+            text3 = font.render("Chew Jia Yi, Koay Yee Shuen, Ong Wan Ning", True, 'black')
+            text4 = font.render("For Mini IT Project, Foundation in IT, MMU", True, 'black')
+
+            text5 = font.render("Try to move Peppy around!", False, 'black')
+            
+            screen.blit(text1, (630, 40))
+            screen.blit(text2, (450, 70))
+            screen.blit(text3, (450, 100))
+            screen.blit(text4, (450, 130))
+            screen.blit(text5, (40, 380))
+
+
+            # Flip the screen
+            pygame.display.flip()
+
+            self.space.step(self.dt)
+            clock.tick(FPS)
+
+        pygame.quit()
 
 
 
@@ -710,3 +881,4 @@ with open(f'level{level}_data.csv', newline='') as csvfile:
             world_data[x][y] = int(tile)
 world = World()
 player, health_bar = world.process_data(world_data, level)
+
