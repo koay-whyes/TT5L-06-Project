@@ -123,6 +123,7 @@ pizza_stats3_img=loadify("img/pizza_stats3.png")
 story_image = loadify("img/story/story.png")
 outro1_image = loadify("img/story/outro1.png")
 outro2_image = loadify("img/story/outro2.png")
+outro3_image = loadify("img/story/outro3.png")
 end_img=loadify("img/end_button.png")
 
 #Victory
@@ -272,7 +273,7 @@ outro_texts= [
 
     "Player: (softly) It's not too late, Pineapple. We can find a way to change things.",
 
-    "Pineapple: (fading) Too late... for me...",
+    "Pineapple: (fading) Too late... for me...(PRESS END)",
 ]
 
 def restart():
@@ -532,6 +533,7 @@ while running:
         if outro_index>=7:
             screen.blit(outro2_image,(0,0))
         if outro_index==12:
+            screen.blit(outro3_image, (0,0))
             end_button.draw(screen)
         elif end_button.draw(screen):
             outro=False

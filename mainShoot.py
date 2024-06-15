@@ -416,7 +416,7 @@ class Character(pygame.sprite.Sprite):
     def check_collision(self, spriteGroup):
         if pygame.sprite.spritecollide(self, spriteGroup, False):
             # handle collision logic here
-            self.health -= 5  # example: reduce player health by 10
+            self.health -= 1  # example: reduce player health by 10
             print("Collision detected!")
 
 class MovingPlatform(pygame.sprite.Sprite):
@@ -607,7 +607,7 @@ class ItemBox(pygame.sprite.Sprite):
         if pygame.sprite.collide_rect(self, player):
             #check what kind of box it was
             if self.item_type == 'Health':
-                player.health += 25
+                player.health += 40
                 item_fx.play()
                 if player.health > player.max_health:
                     player.health = player.max_health
