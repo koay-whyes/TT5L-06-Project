@@ -115,8 +115,6 @@ stats_add_img=loadify("img/stats_add_button.png")
 attack_stats_img=loadify("img/attack_stats.png") 
 defense_stats_img=loadify("img/defense_stats.png") 
 health_stats_img=loadify("img/health_stats.png") 
-pizza_stats1_img=loadify("img/pizza_stats1.png") 
-pizza_stats2_img=loadify("img/pizza_stats2.png") 
 pizza_stats3_img=loadify("img/pizza_stats3.png") 
 
 #Story img
@@ -138,9 +136,6 @@ stats_add_img=loadify("img/victory/stats_add_button.png")
 attack_stats_img=loadify("img/victory/attack_stats.png") 
 defense_stats_img=loadify("img/victory/defense_stats.png") 
 health_stats_img=loadify("img/victory/health_stats.png") 
-pizza_stats0_img=loadify("img/victory/pizza_stats0.png") 
-pizza_stats1_img=loadify("img/victory/pizza_stats1.png") 
-pizza_stats2_img=loadify("img/victory/pizza_stats2.png") 
 pizza_stats3_img=loadify("img/victory/pizza_stats3.png") 
 
 cheezy_warning_img=loadify("img/victory/cheezy_warning.png") 
@@ -204,9 +199,7 @@ health_stats_button=menubutton.DrawMenu(680,200,health_stats_img,4.5)
 cheezy_warning=menubutton.DrawMenu(350,150,cheezy_warning_img,4.5)
 maximum_level_warning=menubutton.DrawMenu(350,150,maximum_level_warning_img,4.5)
 #Stats Menu images
-pizza_stats0=menubutton.DrawMenu(350,150,pizza_stats0_img,10.0)
-pizza_stats1=menubutton.DrawMenu(350,150,pizza_stats1_img,10.0)
-pizza_stats2=menubutton.DrawMenu(350,150,pizza_stats2_img,10.0)
+
 pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
 
 #Ending button
