@@ -26,10 +26,8 @@ pygame.display.set_caption("Peppy the Pizza") # display on top of the window
 clock = pygame.time.Clock() 
 FPS = 60 
 # define game variables
-cheezy = 0
-screen_scroll = 0
-bg_scroll = 0
 level = 1
+
 
 #music
 MainMusic = pygame.mixer.Sound("bgm.mp3") 
@@ -112,8 +110,8 @@ pizza_stats2_img=pygame.image.load("img/pizza_stats2.png").convert_alpha()
 pizza_stats3_img=pygame.image.load("img/pizza_stats3.png").convert_alpha()
 
 #Game img
-comic_panel  = pygame.image.load("img/comic_panel.jpeg")
-background_img = pygame.image.load("img/background.jpg")
+story_image = pygame.image.load("img/story/story.png")
+
 
 #Victory
 victory_background_img=pygame.image.load("img/victory/victory_bg.png")
@@ -166,7 +164,7 @@ menu_button=menubutton.DrawMenu(100,100,menu_img,2.5)
 resume_button=menubutton.DrawMenu(780,100,resume_img,2.5)
 tick_button=menubutton.DrawMenu(340,290,tick_img,5)
 x_button=menubutton.DrawMenu(570,290,x_img,5)
-next_button=menubutton.DrawMenu(850,150,next_img,1.5)
+next_button=menubutton.DrawMenu(900,380,next_img,1.5)
 full_screen_button=menubutton.DrawMenu(850,150,full_scren_img,1.5)
 
 #Victory Menu Button
@@ -191,6 +189,43 @@ pizza_stats1=menubutton.DrawMenu(350,150,pizza_stats1_img,10.0)
 pizza_stats2=menubutton.DrawMenu(350,150,pizza_stats2_img,10.0)
 pizza_stats3=menubutton.DrawMenu(350,150,pizza_stats3_img,10.0)
 
+def reset_level():
+    # Load new level data
+    global player,enemy,health_bar,world_data
+    # Reset player and enemy health
+    player.health = 120
+    for enemy in enemy_group:
+        enemy.health = 120
+    player.ammo = 20
+    enemy_group.empty()
+    item_box_group.empty()
+    decoration_group.empty()
+    threat_group.empty()
+    exit_group.empty()
+    pepperoni_group.empty()
+    MS.world_data.clear()
+    MS.world.obstacle_list.clear()
+    world_data = []
+    for row in range(ROWS):
+        r = [-1] * COLS
+        world_data.append(r)
+    with open(f'level{level}_data.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for x, row in enumerate(reader):
+            for y, tile in enumerate(row):
+                world_data[x][y] = int(tile)
+    MS.world = MS.World()
+    MS.world.process_data(world_data, MS.level)
+    MS.player.rect.center = (player.rect.centerx,player.rect.centery)
+    MS.screen_scroll = 0
+    MS.bg_scroll =0
+    MS.player.rect.center = (100,100)
+    for enemy in enemy_group:
+        enemy.rect.center = (enemy.rect.centerx,enemy.rect.centery)
+
+
+
+'''
 #reset level
 def reset_level():
     global player,enemy,health_bar,world_data
@@ -200,9 +235,10 @@ def reset_level():
     threat_group.empty()
     exit_group.empty()
     pepperoni_group.empty()
-    MS.player.health = 100
+    MS.player.health = 120
     MS.player.ammo = 20 
-    cheezy = 0 
+    MS.bg_scroll=0
+    MS.screen_scroll=0
     #create empty tile list
     world_data = []
     for row in range(ROWS):
@@ -216,10 +252,8 @@ def reset_level():
                 world_data[x][y] = int(tile)
     world = World()
     player, health_bar = world.process_data(world_data, level)
-    screen_scroll = 0
-    MS.player.rect.center = (100,100)
-
-
+    MS.player.rect.center = (player.rect.centerx,player.rect.centery)
+'''
 def game_over():
     game_over_background_img=pygame.image.load("img/game_over_bg.png")
     game_over_restart_img=pygame.image.load("img/game_over_restart.png").convert_alpha()
@@ -231,6 +265,7 @@ def game_over():
         reset_level()
         main_channel.unpause()
         game_over_channel.pause()
+
 
 settings=False
 main_menu=True
@@ -244,28 +279,24 @@ stats=False
 start_time = pygame.time.get_ticks()
 warning_cheezy_visible = False
 maximum_level_visible=False
+back_to = None
+story_index = 0
+attack_level=0
+health_level=0
 #story
 story_texts = [ 
+    "Long ago, all the pizza ingredients lived happily together in harmony. (PRESS ENTER)",
 
-    "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
-    "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
-    "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
-    "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
-    "And of course, yours!(PRESS NEXT TO START THE GAME)",
+    "Out of a sudden, the pineapple turned evil, and no one knew why.",
+
+    "Only Peppy, the pepperoni pizza with superpizza abilities, could stop the Pineapple.",
+
+    "But Peppy will need the help of the cheezys to stand a chance to defeat the Pineapple.",
+
+    "Can you help Peppy find out what happened?(PRESS NEXT TO START)",
 ]
 
-story_index = 0
 
-
-sfx=True
-pause_menu=False
-warning=False
-story=False
-victory=False
-stats=False
-attack_level=0
-defense_level=0
-health_level=0
 # Game loop
 
 running = True 
@@ -312,12 +343,13 @@ while running:
         title.draw(screen)
         story_channel.pause()
         game_over_channel.pause()
+        victory=False
         if exit_button.draw(screen):
             running=False
         if settings_button.draw(screen):
-            main_menu=False
             settings=True
-            story=False
+            back_to = "main_menu"
+            main_menu=False
         if play_button.draw(screen):
             story=True
             main_menu=False
@@ -331,10 +363,15 @@ while running:
         music_text.draw(screen)
         story_channel.pause()
         main_channel.unpause()
+        stats_channel.pause()
         if back_button.draw(screen):
-            main_menu=True
-            settings=False
-            stats_channel.pause()
+            if back_to == "victory":
+                victory=True
+                settings=False
+            elif back_to == "main_menu":
+                main_menu=True
+                settings=False
+            back_to = None
         if sound_button.draw(screen):
             sound_on=not sound_on
             if sound_on:
@@ -347,7 +384,7 @@ while running:
                 sfx=not sfx
                 if sfx:
                     sfx_button.update_image(sfx_img,4.5)
-                    pygame.mixer.Channel(0).set_volume(0.5)
+                    pygame.mixer.Channel(0).set_volume(1.0)
                 else:
                     sfx_button.update_image(NoSfx_img,4.5)
                     pygame.mixer.Channel(0).set_volume(0)
@@ -357,15 +394,18 @@ while running:
     elif story==True:
         screen.fill(BLACK)
         text = font.render(story_texts[story_index], True, WHITE)
-        screen.blit(text, (40, 400))
-        if story_index == 4:
-            if next_button.draw(screen):
-                story=False
-                story_channel.pause()
-                main_channel.unpause()
+        screen.blit(story_image,(0,0))
+        screen.blit(text, (40, 460))
+        victory=False
+        stats=False
+        if next_button.draw(screen):
+            story=False
+            main_menu=False
+            story_channel.pause()
+            main_channel.unpause()
 
     #Victory Menu
-    elif victory==True and stats==False:
+    elif victory==True:
         main_channel.pause()
         victory_channel.unpause()
         screen.blit(victory_background_img,(0,0))
@@ -375,10 +415,11 @@ while running:
             main_channel.unpause()
             victory_channel.pause()
         if victory_settings_button.draw(screen):
-            victory=False
             settings=True
             main_channel.unpause()
             victory_channel.pause()
+            back_to = "victory"
+            victory=True
         if victory_next_button.draw(screen):
             level_complete=True
             victory=False
@@ -387,16 +428,16 @@ while running:
         if stats_button.draw(screen):
             stats=True
             victory=False
-        if stats==True:
-            stats_channel.unpause()
-            screen.fill(WOOD_BROWN)
+
     elif stats==True:
         victory_channel.pause()
         stats_channel.unpause()
+        main_channel.pause()
         screen.fill((255, 224, 130))
         attack_stats_button.draw(screen)
         defense_stats_button.draw(screen)
         health_stats_button.draw(screen)
+        pizza_stats0.draw(screen)
         pizza_attack_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
         pizza_defense_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}
         pizza_health_stats_dict = {1: pizza_stats1, 2: pizza_stats2, 3: pizza_stats3}      
@@ -405,11 +446,11 @@ while running:
                 maximum_level_visible=True
                 start_time = pygame.time.get_ticks()
             else:
-                if MS.player.cheezy>0:
+                if MS.player.cheezy!=0:
                     MS.player.cheezy-=1
                     attack_level+=1
                     for enemy in enemy_group:
-                        enemy.health-=1
+                        enemy.health-=20
                     print(f"attack_level:{attack_level}")
                     print(f"cheezy:{MS.player.cheezy}")
                     print(f"enemy health:{enemy.health}")
@@ -417,14 +458,14 @@ while running:
                     warning_cheezy_visible=True
                     start_time = pygame.time.get_ticks()
         if stats_add_defense_button.draw(screen):
-            if defense_level==3:
+            if MS.defense_level==3:
                 maximum_level_visible=True
                 start_time = pygame.time.get_ticks()
             else:
-                if MS.player.cheezy>0:
-                    cheezy-=1
-                    defense_level+=1
-                    print(f"defense_level:{defense_level}")
+                if MS.player.cheezy!=0:
+                    MS.player.cheezy-=1
+                    MS.defense_level+=1
+                    print(f"defense_level:{MS.defense_level}")
                     print(f"cheezy:{MS.player.cheezy}")
                 else:
                     warning_cheezy_visible=True
@@ -434,8 +475,8 @@ while running:
                 maximum_level_visible=True
                 start_time = pygame.time.get_ticks()
             else:
-                if MS.player.cheezy>0:
-                    cheezy-=1
+                if MS.player.cheezy!=0:
+                    MS.player.cheezy-=1
                     health_level+=1
                     player.health+=15
                     print(f"health_level:{health_level}")
@@ -476,6 +517,7 @@ while running:
 
     else:
         if not pause_menu:
+            print(f"{screen_scroll}")
             # update background
             draw_bg()
             #draw world map
@@ -536,9 +578,8 @@ while running:
                 # check if player has completed the level
                 if level_complete == True:
                     level += 1
-                    bg_scroll = 0
-                    reset_level()
-                    victory = True 
+                    victory = True
+                    reset_level() 
                     # if level <= MAX_LEVELS:
                     if level == 2:
                         #load in level data and create world
@@ -549,7 +590,6 @@ while running:
                                     world_data[x][y] = int(tile)
                         world = World()
                         player, health_bar = world.process_data(world_data, level)
-
                 max_scroll = (world.level_length * TILE_SIZE) - SCREEN_WIDTH
                 if bg_scroll < 0:
                     bg_scroll = 0
