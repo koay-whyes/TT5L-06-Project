@@ -584,17 +584,7 @@ class PhysicsGame():
         self.body_image = None
 
         #story
-        """self.story_texts = [ 
 
-            "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
-            "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
-            "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
-            "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
-            "And of course, yours!(PRESS NEXT TO START THE GAME)",
-        ]"""
-
-        """self.story_index = 0
-        self.enter_key_down = False"""
 
     def create_boundaries(self, space, width, height):
         rects = [
@@ -705,8 +695,7 @@ class PhysicsGame():
                 self.body_body.apply_impulse_at_local_point((0, 1000), (0, 0))
                 self.last_jump_time = current_time
 
-            """if self.enter_key_down:
-                self.story_index = (self.story_index + 1) % len(self.story_texts)"""
+
 
 
             # Clear the screen
