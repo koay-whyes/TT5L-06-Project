@@ -120,8 +120,6 @@ def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
 
-"""def draw_bg():
-    screen.fill(BG)"""
     
 
 # fixed the bullet-character gap problem
@@ -241,23 +239,10 @@ class Character(pygame.sprite.Sprite):
             self.flip = False
             self.direction = 1
         
-        # Dash logic
-        """if dash and time.time() - self.last_dash > self.dash_cooldown:
-            if moving_left:
-                dx -= self.dash_distance
-                self.last_dash = time.time()
-                dash = True
-            if moving_right:
-                dx += self.dash_distance"""
-        
+        # Dash logic       
         if dash and time.time() - self.last_dash > self.dash_cooldown:
             self.dash_start_time = time.time()
             self.speed = self.base_speed * 5
-            
-            """if moving_left:
-                dx -= self.speed
-            if moving_right:
-                dx += self.speed"""
             
             self.last_dash = time.time()
         
@@ -277,10 +262,6 @@ class Character(pygame.sprite.Sprite):
             self.vel_y = 10 # set limit not more than 10 
         dy += self.vel_y
 
-        """# check collision with floor
-        if self.rect.bottom + dy >300:
-            dy = 300 - self.rect.bottom
-            self.in_air = False """
         #check for collision
         for tile in world.obstacle_list:
             #check collision in the x direction
@@ -334,8 +315,6 @@ class Character(pygame.sprite.Sprite):
         if self.char_type == 'Peppy':
             if self.rect.x + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
                 dx = 0
-            """if self.rect.y + dy > SCREEN_HEIGHT:
-                self.alive = False """
 
         # update rectangle position
         self.rect.x += dx 
@@ -643,8 +622,6 @@ class Pepperoni(pygame.sprite.Sprite):
         # define instances
         self.speed = 10 # every bullet have the same speed
         self.image = pepperoni_img
-        # self.image = pygame.Surface((12,12))
-        # self.image.fill((255,0,0))
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
         self.direction = direction
@@ -855,18 +832,6 @@ threat_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
 moving_platform_group =  pygame.sprite.Group()
 
-
-
-
-
-
-# create an player instance of the class for player
-"""player = Character("Peppy",200,200,1.65, 5, 20)
-health_bar = HealthBar(10, 10, player.health, player.health)
-enemy = Character("Pineapple",500, 200, 1.65, 2, 20) # change char type later
-enemy2 = Character('Pineapple', 300, 200, 1.65, 2, 20)		
-enemy_group.add(enemy)		
-enemy_group.add(enemy2)"""
 
 #create empty tile list
 world_data = []
