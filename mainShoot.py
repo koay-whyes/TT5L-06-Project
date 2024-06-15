@@ -24,7 +24,7 @@ SCROLL_THRESH = 400
 ROWS = 20
 COLS = 640
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 36
+TILE_TYPES = 37
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
@@ -66,6 +66,8 @@ cheezy_img = loadify('img/Interactive Elements/tiles/21.png')
 cheezy_frames = [loadify(f'img/Interactive Elements/Cheezys/{i}.png') for i in range(21,26)]
 cutting_board_img = loadify('img/Interactive Elements/tiles/29.png') 
 cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
+dash_board_img = loadify('img/Interactive Elements/tiles/36.png')
+dash_board_img = pygame.transform.scale(dash_board_img, (200, 200))
 mug_img = loadify('img/Interactive Elements/tiles/30.png') 
 mug_img = pygame.transform.scale(mug_img, (95, 95))
 pan_img = loadify('img/Interactive Elements/tiles/31.png') 
@@ -88,7 +90,8 @@ decorative_items = {
     'Cutting Board' : cutting_board_img,
     'Mug' : mug_img,
     'Pan' : pan_img,
-    'Towel' : towel_img
+    'Towel' : towel_img,
+    'Dash Board' : dash_board_img
 }
 threat_items = {
     'Sink' : sink_img,
@@ -471,6 +474,9 @@ class World():
                          threat_group.add(threat)
                     elif tile == 29:
                           decoration = Decoration("Cutting Board", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 36:
+                          decoration = Decoration("Dash Board", x * TILE_SIZE, y * TILE_SIZE)
                           decoration_group.add(decoration)
                     elif tile == 30:
                           decoration = Decoration("Mug", x * TILE_SIZE, y * TILE_SIZE)
