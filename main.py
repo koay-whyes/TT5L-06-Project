@@ -46,6 +46,7 @@ EndingMusic=pygame.mixer.Sound("bgm/end_bgm.mp3")
 
 #sound effect
 jump_fx = pygame.mixer.Sound("sound/jump.mp3")
+dead_fx = pygame.mixer.Sound("sound/dead.mp3")
 
 main_channel = pygame.mixer.Channel(1)
 story_channel = pygame.mixer.Channel(2)
@@ -73,6 +74,7 @@ def loadify(imgname):
 
 # load img
 bg_img = pygame.image.load("img/bg.png").convert_alpha()
+
 
 def draw_bg():
     screen.fill(BG)
@@ -390,6 +392,8 @@ def game():
 
 
 # Game loop
+
+dead_fx_played = True
 running = True 
 while running: 
     clock.tick(FPS)

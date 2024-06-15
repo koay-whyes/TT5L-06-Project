@@ -26,7 +26,7 @@ SCROLL_THRESH = 400
 ROWS = 20
 COLS = 640
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 36
+TILE_TYPES = 39
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
@@ -44,7 +44,6 @@ shoot_fx = pygame.mixer.Sound("sound/shoot.mp3")
 cheezy_fx = pygame.mixer.Sound("sound/cheezy.mp3")
 item_fx = pygame.mixer.Sound("sound/item.mp3")
 pizzabox_fx = pygame.mixer.Sound("sound/pizzabox.mp3")
-fall_fx = pygame.mixer.Sound("sound/fall.mp3")
 
 def loadify(imgname):
     return pygame.image.load(imgname).convert_alpha()
@@ -69,6 +68,8 @@ cheezy_img = loadify('img/Interactive Elements/tiles/21.png')
 cheezy_frames = [loadify(f'img/Interactive Elements/Cheezys/{i}.png') for i in range(21,26)]
 cutting_board_img = loadify('img/Interactive Elements/tiles/29.png') 
 cutting_board_img = pygame.transform.scale(cutting_board_img, (200, 200))
+dash_board_img = loadify('img/Interactive Elements/tiles/36.png')
+dash_board_img = pygame.transform.scale(dash_board_img, (200, 200))
 mug_img = loadify('img/Interactive Elements/tiles/30.png') 
 mug_img = pygame.transform.scale(mug_img, (95, 95))
 pan_img = loadify('img/Interactive Elements/tiles/31.png') 
@@ -81,6 +82,8 @@ oil_img = loadify('img/Interactive Elements/tiles/23.png')
 sink_tile_img = loadify('img/Interactive Elements/tiles/33.png') 
 sink_tile_img = pygame.transform.scale(sink_tile_img, (TILE_SIZE, TILE_SIZE))
 oil_tile_img = loadify('img/Interactive Elements/tiles/24.png') 
+cheezy_board_img = loadify('img/Interactive Elements/tiles/38.png') 
+cheezy_board_img = pygame.transform.scale(cheezy_board_img, (100, 100))
 
 item_boxes = {
     'Health'	: health_box_img,
@@ -91,7 +94,9 @@ decorative_items = {
     'Cutting Board' : cutting_board_img,
     'Mug' : mug_img,
     'Pan' : pan_img,
-    'Towel' : towel_img
+    'Towel' : towel_img,
+    'Dash Board' : dash_board_img,
+    'Cheezy Board' : cheezy_board_img
 }
 threat_items = {
     'Sink' : sink_img,
@@ -481,6 +486,12 @@ class World():
                     elif tile == 29:
                           decoration = Decoration("Cutting Board", x * TILE_SIZE, y * TILE_SIZE)
                           decoration_group.add(decoration)
+                    elif tile == 38:
+                          decoration = Decoration("Cheezy Board", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
+                    elif tile == 36:
+                          decoration = Decoration("Dash Board", x * TILE_SIZE, y * TILE_SIZE)
+                          decoration_group.add(decoration)
                     elif tile == 30:
                           decoration = Decoration("Mug", x * TILE_SIZE, y * TILE_SIZE)
                           decoration_group.add(decoration)
@@ -493,13 +504,18 @@ class World():
                     elif tile == 25:#create player
                         player = Character('Peppy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 5, 20)
                         health_bar = HealthBar(10, 10, player.health, player.health)
-                    elif tile == 26:#create enemies
-                        if level == 1:
-                            enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
-                            enemy_group.add(enemy)
-                        elif level == 2:
-                            enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 20)
-                            enemy_group.add(enemy)
+                    elif tile == 34: # level 1 enemy
+                        enemy = Character('Broccoli', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 3)
+                        enemy_group.add(enemy)
+                    elif tile == 35: # level 2 enemy
+                        enemy = Character('Anchovy', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 7)
+                        enemy_group.add(enemy)                        
+                    elif tile == 26: # level 3 enemy
+                        enemy = Character('Pineapple', x * TILE_SIZE, y * TILE_SIZE, 1.65, 2, 10)
+                        enemy_group.add(enemy)
+                    elif tile == 37: # final boss
+                        enemy = Character('Boss', x * TILE_SIZE, y * TILE_SIZE, 1.65*1.2, 2, 20)
+                        enemy_group.add(enemy)  
                     elif tile == 27:#create ammo box
                          item_box = ItemBox('Ammo', x * TILE_SIZE, y * TILE_SIZE)
                          item_box_group.add(item_box)
@@ -561,7 +577,6 @@ class Exit(pygame.sprite.Sprite):
 
     def update(self, screen_scroll):
         self.rect.x += screen_scroll
-
 
 class ItemBox(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
