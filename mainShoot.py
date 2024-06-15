@@ -41,7 +41,6 @@ shoot_fx = pygame.mixer.Sound("sound/shoot.mp3")
 cheezy_fx = pygame.mixer.Sound("sound/cheezy.mp3")
 item_fx = pygame.mixer.Sound("sound/item.mp3")
 pizzabox_fx = pygame.mixer.Sound("sound/pizzabox.mp3")
-fall_fx = pygame.mixer.Sound("sound/fall.mp3")
 
 def loadify(imgname):
     return pygame.image.load(imgname).convert_alpha()
@@ -321,7 +320,7 @@ class Character(pygame.sprite.Sprite):
 
         # check for collision with pizza box (exit)
         level_complete = False
-        if pygame.sprite.spritecollide(self, exit_group, False):
+        if pygame.sprite.spritecollide(player, exit_group, False):
             level_complete = True
             pizzabox_fx.play()
         

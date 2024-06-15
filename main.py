@@ -44,6 +44,7 @@ StatsMusic=pygame.mixer.Sound("stats_bgm.mp3")
 
 #sound effect
 jump_fx = pygame.mixer.Sound("sound/jump.mp3")
+dead_fx = pygame.mixer.Sound("sound/dead.mp3")
 
 main_channel = pygame.mixer.Channel(1)
 story_channel = pygame.mixer.Channel(2)
@@ -265,6 +266,7 @@ defense_level=0
 health_level=0
 # Game loop
 
+dead_fx_played = True
 running = True 
 while running: 
     clock.tick(FPS)
@@ -579,9 +581,12 @@ while running:
                         elif x_button.draw(screen):
                             pause_menu=True
                             warning=False
-                if player.alive==False:
+
+                if not player.alive:
+                    if dead_fx_played:
+                        dead_fx.play()
+                        dead_fx_played = False
                     game_over()
-                
                 
                 # player.move(moving_left, moving_right, dash)
                 
