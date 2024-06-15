@@ -584,17 +584,7 @@ class PhysicsGame():
         self.body_image = None
 
         #story
-        """self.story_texts = [ 
 
-            "Long ago, all the pizza ingredients lived together in harmony.(PRESS ENTER)",
-            "Then, everything changed when the Pineapple attacked.(PRESS ENTER)",
-            "Only the pepperoni pizza, Peppy, with its superpizza abilities could stop him.(PRESS ENTER)",
-            "He will need the help of the power ups and the cheezys to stand a chance to defeat the Pineapple.",
-            "And of course, yours!(PRESS NEXT TO START THE GAME)",
-        ]"""
-
-        """self.story_index = 0
-        self.enter_key_down = False"""
 
     def create_boundaries(self, space, width, height):
         rects = [
@@ -705,8 +695,7 @@ class PhysicsGame():
                 self.body_body.apply_impulse_at_local_point((0, 1000), (0, 0))
                 self.last_jump_time = current_time
 
-            """if self.enter_key_down:
-                self.story_index = (self.story_index + 1) % len(self.story_texts)"""
+
 
 
             # Clear the screen
@@ -718,9 +707,20 @@ class PhysicsGame():
             image_y = self.body_body.position.y - self.body_image.get_height() / 2
             screen.blit(self.body_image, (image_x, image_y))
 
-            # NPC dialogue
-            """text = font.render(self.story_texts[self.story_index], True, BLACK)
-            screen.blit(text, (40, 400))"""
+
+            text1 = font.render("CREDITS", True, 'black')
+
+            text2 = font.render("Developed by students from group TT5L-06:  ", True, 'black')
+            text3 = font.render("Chew Jia Yi, Koay Yee Shuen, Ong Wan Ning", True, 'black')
+            text4 = font.render("For Mini IT Project, Foundation in IT, MMU", True, 'black')
+
+            text5 = font.render("Try to move Peppy around!", False, 'black')
+            
+            screen.blit(text1, (630, 40))
+            screen.blit(text2, (450, 70))
+            screen.blit(text3, (450, 100))
+            screen.blit(text4, (450, 130))
+            screen.blit(text5, (40, 380))
 
 
             # Flip the screen
