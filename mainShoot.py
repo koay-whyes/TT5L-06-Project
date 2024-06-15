@@ -408,6 +408,12 @@ class Character(pygame.sprite.Sprite):
     def draw(self):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect) # put character image into the rectangle
 
+    def check_collision(self, spriteGroup):
+        if pygame.sprite.spritecollide(self, spriteGroup, False):
+            # handle collision logic here
+            self.health -= 5  # example: reduce player health by 10
+            print("Collision detected!")
+
 class MovingPlatform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
         pygame.sprite.Sprite.__init__(self)
